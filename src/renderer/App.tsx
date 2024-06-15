@@ -4,9 +4,8 @@ import { ConfigProvider } from 'antd';
 import { StyleProvider } from '@ant-design/cssinjs';
 import 'tailwindcss/tailwind.css';
 import { Sidebar } from '../components/sidebar';
-import background from '../../assets/background-crawl.jpg';
 import { CrawlPage } from '../pages/crawl-page';
-import { ManageChannel } from '../pages/manage-channel';
+import { DashboardManageChannel } from '../pages/manage-page/index';
 
 export default function App() {
   return (
@@ -35,7 +34,10 @@ export default function App() {
             <Sidebar />
             <Routes>
               <Route path="/" element={<CrawlPage />} />
-              <Route path="/manage-channel" element={<ManageChannel />} />
+              <Route
+                path="/manage-page/*"
+                element={<DashboardManageChannel />}
+              />
             </Routes>
           </div>
         </Router>

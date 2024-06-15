@@ -15,6 +15,7 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import './crawl-page';
+import './manage-page';
 
 class AppUpdater {
   constructor() {
@@ -25,6 +26,7 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+export let mainWindowId = 0;
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -72,7 +74,7 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1378,
+    width: 1472,
     height: 862,
     icon: getAssetPath('icon.png'),
     webPreferences: {
@@ -81,7 +83,7 @@ const createWindow = async () => {
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
-
+  mainWindowId = mainWindow.id;
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {

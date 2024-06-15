@@ -1,35 +1,21 @@
 import React, { useState } from 'react';
 import bg from '../../assets/bg-crawl-data.jpg';
-import { Button, Form, Input, Row, Space } from 'antd';
+import { Button, Form, Input, Row, Select, Space } from 'antd';
 import clsx from 'clsx';
 import { DownloadOutlined } from '@ant-design/icons';
-import img1 from '../../assets/images-item/1.jpg';
-import img2 from '../../assets/images-item/2.jpg';
-import img3 from '../../assets/images-item/3.jpg';
-import img8 from '../../assets/images-item/8.jpg';
 
 import { ItemList } from '../components/item-list';
-
-const listImage = [
-  img1,
-  img2,
-  img3,
-  img1,
-  img2,
-  img3,
-  img1,
-  img2,
-  img3,
-  img1,
-  img2,
-  img3,
-];
+import { ArgCrawlData } from '../models/crawl-page';
 
 export const CrawlPage = () => {
   const [isStartCrawl, setIsStartCrawl] = useState(false);
+  const [channelUrl, setChannelUrl] = useState('');
+  const [quantity, setQuantity] = useState(0);
 
   const crawlData = () => {
-    window.electron.ipcRenderer.sendMessage('crawl-channel');
+    window.electron.ipcRenderer.sendMessage('crawl-channel', {
+      channelInput: channelUrl,
+    } as ArgCrawlData);
   };
 
   return (
@@ -52,7 +38,20 @@ export const CrawlPage = () => {
         </p>
       </div>
       <div className="flex gap-2 mt-6">
-        <Input placeholder="Điền đường dẫn đến kênh của bạn!" />
+        <Select
+          value={quantity}
+          className="w-32"
+          options={[
+            { label: 'Full', value: 0 },
+            { label: '10', value: 10 },
+          ]}
+          onChange={(value) => setQuantity(value)}
+        />
+        <Input
+          placeholder="Điền đường dẫn đến kênh của bạn!"
+          value={channelUrl}
+          onChange={(event) => setChannelUrl(event.target.value)}
+        />
         <Button
           type="primary"
           htmlType="submit"
@@ -64,30 +63,6 @@ export const CrawlPage = () => {
         >
           Tải xuống
         </Button>
-      </div>
-      <div className="mt-20">
-        <div className="w-fit mx-auto">
-          <h1 className="text-3xl font-medium mb-10 bg-gradient-to-r from-red-600 to-orange-600 inline-block text-transparent bg-clip-text">
-            Thông tin tải về
-          </h1>
-        </div>
-        <div className="flex gap-2 items-center">
-          <div className="w-32 h-32 rounded-xl overflow-hidden">
-            <img src={img8} alt="" className="w-full h-full object-cover " />
-          </div>
-          <div className="">
-            <h1 className="text-2xl mb-2">Tấu hài mỗi ngày</h1>
-            <h2 className="text-sm text-zinc-600">Nguyễn Ngọc Bảo Long</h2>
-          </div>
-        </div>
-        <div className="my-10 min-h-[500px]">
-          <h2 className="font-medium">Video: </h2>
-          <div className="flex gap-2 flex-wrap justify-between">
-            {listImage.map((img, index) => (
-              <ItemList src={img} key={index} />
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
