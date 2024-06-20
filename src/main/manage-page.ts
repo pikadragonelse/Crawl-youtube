@@ -5,21 +5,16 @@ import { ipcMain } from 'electron';
 
 // Đường dẫn tới folder 'channels'
 const channelsPath = path.join(path.resolve(), 'channels');
-const baseUrl = 'http://localhost:3001/channels';
-
+export const baseUrl = 'http://localhost:3001/channels';
 // Hàm lấy thông tin của một kênh
 const getChannelInfo = (channelName: string): ChannelInfo | null => {
   const channelPath = path.join(channelsPath, channelName);
   const channelInfoPath = path.join(channelPath, 'channel-info');
-  const videosPath = path.join(channelPath, 'videos');
 
   const avtPath = `${baseUrl}/${channelName}/channel-info/${channelName}-avt.jpg`;
   const bannerPath = `${baseUrl}/${channelName}/channel-info/${channelName}-banner.jpg`;
 
-  if (
-    !fs.existsSync(path.join(channelInfoPath, `${channelName}-avt.jpg`)) ||
-    !fs.existsSync(path.join(channelInfoPath, `${channelName}-banner.jpg`))
-  ) {
+  if (!fs.existsSync(path.join(channelInfoPath, `${channelName}-avt.jpg`))) {
     console.error(`Không tìm thấy AVT hoặc Banner cho kênh ${channelName}`);
     return null;
   }

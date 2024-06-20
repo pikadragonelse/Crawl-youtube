@@ -37,7 +37,7 @@ export const ManageVideo = () => {
             Tổng hợp video của kênh {channelName}
           </h1>
         </div>
-        <div className="flex gap-2 flex-wrap justify-between">
+        <div className="flex gap-2 flex-wrap justify-around">
           {listVideoInfo.map((videoInfo, index) => (
             <ItemList key={index} type="video" video={videoInfo} />
           ))}

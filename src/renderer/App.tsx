@@ -6,6 +6,7 @@ import 'tailwindcss/tailwind.css';
 import { Sidebar } from '../components/sidebar';
 import { CrawlPage } from '../pages/crawl-page';
 import { DashboardManageChannel } from '../pages/manage-page/index';
+import { Settings } from '../pages/settings';
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
                 path="/manage-page/*"
                 element={<DashboardManageChannel />}
               />
+              <Route path="/settings" element={<Settings />} />
             </Routes>
           </div>
         </Router>

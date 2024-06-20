@@ -35,7 +35,7 @@ export const ItemList: React.FC<ItemList> = ({
   const [isOpenModal, setIsOpenModal] = useState(false);
 
   return (
-    <div className="relative w-64 h-64 rounded-xl overflow-hidden group">
+    <div className="relative w-64 h-64 rounded-xl overflow-hidden group shadow-lg">
       <Modal
         title="Video detail"
         open={isOpenModal}

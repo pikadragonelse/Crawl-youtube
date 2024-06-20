@@ -16,6 +16,7 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import './crawl-page';
 import './manage-page';
+import './settings';
 
 class AppUpdater {
   constructor() {

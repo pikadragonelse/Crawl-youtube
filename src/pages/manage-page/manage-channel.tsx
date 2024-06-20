@@ -22,7 +22,7 @@ export const ManageChannel = () => {
             Tổng hợp kênh
           </h1>
         </div>
-        <div className="flex gap-2 flex-wrap justify-between">
+        <div className="flex gap-2 flex-wrap justify-around">
           {listChannelInfo.map((channelInfo, index) => (
             <ItemList key={index} type="channel" channel={channelInfo} />
           ))}

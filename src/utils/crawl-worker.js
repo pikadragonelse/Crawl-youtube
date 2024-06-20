@@ -108,44 +108,14 @@ const downloadVideoFull = async (
     });
 };
 
-// Hàm để tải ảnh
-// Cập nhật hàm downloadImage để sử dụng retryRequest
-const downloadImage = async (url, outputPath) => {
-  try {
-    const response = await axios({
-      url,
-      responseType: 'stream',
-    });
-
-    return new Promise((resolve, reject) => {
-      const writer = fs.createWriteStream(outputPath);
-      response.data.pipe(writer);
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
-  } catch (error) {
-    console.error(`Error when download img from ${url}:`, error);
-  }
-};
-
 const workerDownload = async (
   videoDir,
   videoId,
   videoPath,
   audioPath,
   finalPath,
-  urlVideoThumbnail,
-  videoTitle,
 ) => {
   await downloadVideoFull(videoId, videoPath, audioPath, finalPath);
-
-  // Lưu tên video vào file văn bản
-  const textPath = `${videoDir}/${videoId}.txt`;
-  fs.writeFileSync(textPath, videoTitle);
-
-  // Tải ảnh thumbnail
-  const thumbnailPath = `${videoDir}/${videoId}.jpg`;
-  await downloadImage(urlVideoThumbnail, thumbnailPath);
 };
 
 workerpool.worker({

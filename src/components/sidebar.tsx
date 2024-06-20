@@ -1,9 +1,12 @@
 import React, { useEffect } from 'react';
 import logo from '../../assets/logo.png';
 import { Link, useLocation } from 'react-router-dom';
-import { YoutubeOutlined, AppstoreOutlined } from '@ant-design/icons';
+import {
+  YoutubeOutlined,
+  AppstoreOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import clsx from 'clsx';
-
 type SidebarItem = {
   title: string;
   icon: React.ReactNode;
@@ -20,6 +23,11 @@ const listSidebarItem: SidebarItem[] = [
     title: 'Quản lý kênh',
     icon: <AppstoreOutlined className="text-2xl" />,
     href: '/manage-page',
+  },
+  {
+    title: 'Cài đặt',
+    icon: <SettingOutlined className="text-2xl" />,
+    href: '/settings',
   },
 ];
 
