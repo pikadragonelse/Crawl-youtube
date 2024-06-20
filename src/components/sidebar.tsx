@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import logo from '../../assets/logo.png';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCloudArrowDown } from '@fortawesome/free-solid-svg-icons';
-import { faYoutube } from '@fortawesome/free-brands-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
-import { YoutubeOutlined, AppstoreOutlined } from '@ant-design/icons';
+import {
+  YoutubeOutlined,
+  AppstoreOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import clsx from 'clsx';
-
 type SidebarItem = {
   title: string;
   icon: React.ReactNode;
@@ -22,7 +22,12 @@ const listSidebarItem: SidebarItem[] = [
   {
     title: 'Quản lý kênh',
     icon: <AppstoreOutlined className="text-2xl" />,
-    href: '/manage-channel',
+    href: '/manage-page',
+  },
+  {
+    title: 'Cài đặt',
+    icon: <SettingOutlined className="text-2xl" />,
+    href: '/settings',
   },
 ];
 
@@ -43,7 +48,11 @@ export const Sidebar = () => {
                 {
                   'hover:bg-zinc-200': location.pathname !== item.href,
                   'bg-red-600 text-zinc-50 hover:bg-red-600':
-                    location.pathname === item.href,
+                    location.pathname !== '/'
+                      ? item.href === '/'
+                        ? false
+                        : location.pathname.includes(item.href)
+                      : location.pathname === item.href,
                 },
               )}
             >

@@ -21,6 +21,8 @@ node_modules
 release/app/dist
 release/build
 .erb/dll
+channels
+ffmpeg
 
 .idea
 npm-debug.log.*

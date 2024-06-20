@@ -5,7 +5,15 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 export type Channels =
   | 'ipc-example'
   | 'crawl-channel'
-  | 'crawl-channel-process';
+  | 'crawl-channel-info'
+  | 'crawl-channel-process'
+  | 'get-info-channel'
+  | 'get-video-channel'
+  | 'get-info-video'
+  | 'select-path-save-data'
+  | 'save-settings'
+  | 'get-settings'
+  | 'receive-data-settings';
 
 const electronHandler = {
   ipcRenderer: {
