@@ -15,6 +15,7 @@ import { downloadImage, getVideosFromChannel } from './crawl-page-util';
 import { Channels } from './preload';
 import { mainWindowId } from './main';
 import { baseUrl } from './manage-page';
+import { currentSettingsGlobal } from './settings';
 
 // export const getMainWindow = () => {
 //   const ID = mainWindowId * 1;
@@ -43,7 +44,11 @@ const downloadAllVideosFromChannel = async (
     const { videos, channelInfo } = await getVideosFromChannel(channelId);
 
     // Create necessary folder
-    const channelDir = path.join('channels');
+    const { folderPath } = currentSettingsGlobal;
+    const channelDir = path.join(
+      folderPath != null && folderPath !== '' ? folderPath : '',
+      'channels',
+    );
     if (!fs.existsSync(channelDir)) {
       fs.mkdirSync(channelDir);
     }

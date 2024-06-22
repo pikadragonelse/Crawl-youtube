@@ -1,11 +1,19 @@
 import express from 'express';
 import path from 'path';
+import { DataSettings } from './src/models/settings';
+import { loadSettings } from './src/main/settings-utils';
 
 const app = express();
 const port = 3001;
 
+const dataFilePath = path.join(path.resolve(), 'settings.json');
+const { folderPath }: DataSettings = loadSettings(dataFilePath);
+
 // Đường dẫn tới folder 'channels'
-const channelsPath = path.join(path.resolve(), 'channels');
+const channelsPath = path.join(
+  folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
+  'channels',
+);
 
 // Phục vụ các tệp tĩnh trong thư mục 'channels'
 app.use('/channels', express.static(channelsPath));
