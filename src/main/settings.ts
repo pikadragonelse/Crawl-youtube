@@ -6,6 +6,9 @@ import { DataSettings } from '../models/settings';
 import { ResponseElectron } from '../models/response';
 import { loadSettings } from './settings-utils';
 
+const dataFilePath = path.join(path.resolve(), 'settings.json');
+export let currentSettingsGlobal: DataSettings = loadSettings(dataFilePath);
+
 ipcMain.on('select-path-save-data', async (event, args) => {
   try {
     const response = await dialog.showOpenDialog({
@@ -23,7 +26,7 @@ ipcMain.on('save-settings', (event, args: DataSettings) => {
   const dataFilePath = path.join(path.resolve(), 'settings.json');
   let currentSettings: DataSettings = loadSettings(dataFilePath);
   currentSettings['folderPath'] = folderPath;
-
+  currentSettingsGlobal['folderPath'] = folderPath;
   fs.writeFileSync(dataFilePath, JSON.stringify(currentSettings, null, 2));
 
   event.reply('save-settings', {

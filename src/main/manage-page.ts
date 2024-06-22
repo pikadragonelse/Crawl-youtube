@@ -2,12 +2,19 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ChannelInfo, VideoInfo } from '../models/manage-page';
 import { ipcMain } from 'electron';
+import { currentSettingsGlobal } from './settings';
 
 // Đường dẫn tới folder 'channels'
-const channelsPath = path.join(path.resolve(), 'channels');
+
 export const baseUrl = 'http://localhost:3001/channels';
+
 // Hàm lấy thông tin của một kênh
 const getChannelInfo = (channelName: string): ChannelInfo | null => {
+  const { folderPath } = currentSettingsGlobal;
+  const channelsPath = path.join(
+    folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
+    'channels',
+  );
   const channelPath = path.join(channelsPath, channelName);
   const channelInfoPath = path.join(channelPath, 'channel-info');
 
@@ -27,6 +34,11 @@ const getChannelInfo = (channelName: string): ChannelInfo | null => {
 };
 
 const getVideoOfChannel = (channelName: string): VideoInfo[] | null => {
+  const { folderPath } = currentSettingsGlobal;
+  const channelsPath = path.join(
+    folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
+    'channels',
+  );
   const channelPath = path.join(channelsPath, channelName);
   const videosPath = path.join(channelPath, 'videos');
   const videoIds = fs.readdirSync(videosPath);
@@ -63,6 +75,11 @@ const getVideoOfChannel = (channelName: string): VideoInfo[] | null => {
 };
 
 ipcMain.on('get-info-channel', (event, args) => {
+  const { folderPath } = currentSettingsGlobal;
+  const channelsPath = path.join(
+    folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
+    'channels',
+  );
   const channels = fs.readdirSync(channelsPath);
   const channelsInfo = channels
     .map((channelName) => getChannelInfo(channelName))
