@@ -1,11 +1,19 @@
-import { Select } from 'antd';
+import { Button, Row, Select, Space } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { MailInfo } from '../models/mail';
 import { ChannelInfo } from '../models/crawl-page';
 import { DefaultOptionType } from 'antd/es/select';
 
-export type FormUploadVideo = { mailInfo?: MailInfo };
-export const FormUploadVideo: React.FC<FormUploadVideo> = ({ mailInfo }) => {
+export type FormUploadVideo = {
+  mailInfo?: MailInfo;
+  onDeny?: () => void;
+  onSubmit?: (channelName: string) => void;
+};
+export const FormUploadVideo: React.FC<FormUploadVideo> = ({
+  mailInfo,
+  onDeny,
+  onSubmit = () => {},
+}) => {
   const [listChannelInfo, setListChannelInfo] = useState<ChannelInfo[]>([]);
   const [channelInfoMap, setChannelInfoMap] =
     useState<Record<number, ChannelInfo>>();
@@ -34,7 +42,7 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({ mailInfo }) => {
         <Select
           value={selectedKeyChannel}
           onChange={(value) => setSelectedKeyChannel(value)}
-          className="w-full"
+          className="w-full my-1"
           optionRender={(option) =>
             channelInfoMap != null ? (
               <div className="flex gap-2 items-center py-2">
@@ -53,9 +61,26 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({ mailInfo }) => {
             } as DefaultOptionType;
           })}
         />
+        lên kênh youtube của{' '}
+        <span className="text-red-600">{mailInfo?.mail}</span>?
+        <Row justify={'end'} className="mt-4">
+          <Space>
+            <Button onClick={onDeny}>Từ chối</Button>
+            <Button
+              type="primary"
+              onClick={() =>
+                onSubmit(
+                  channelInfoMap != null
+                    ? channelInfoMap[selectedKeyChannel].name
+                    : '',
+                )
+              }
+            >
+              Xác nhận
+            </Button>
+          </Space>
+        </Row>
       </div>
-      lên kênh youtube của{' '}
-      <span className="text-red-600">{mailInfo?.mail}</span>?
     </div>
   );
 };

@@ -2,6 +2,7 @@ import {
   Button,
   Input,
   Modal,
+  notification,
   Row,
   Select,
   Space,
@@ -10,7 +11,7 @@ import {
   Tabs,
   Tooltip,
 } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   PlusOutlined,
   PlayCircleOutlined,
@@ -21,6 +22,7 @@ import { columns } from './constant';
 import { MailInfo } from '../../models/mail';
 import { FormImportMail } from '../../components/form-add-mail/form-import-mail';
 import { FormUploadVideo } from '../../components/form-upload-video';
+import { UploadVideoArgs } from '../../models/upload-video';
 
 type ActionMailTable = {
   icon: React.ReactNode;
@@ -34,6 +36,7 @@ export const ManageMail = () => {
   const [isOpenAddVideoChannelModal, setIsOpenAddVideoChannelModal] =
     useState(false);
   const [selectMail, setSelectMail] = useState<MailInfo>();
+  const [api, contextHolder] = notification.useNotification();
 
   const actionColumns: TableProps<MailInfo>['columns'] = [
     ...(columns as any),
@@ -79,8 +82,32 @@ export const ManageMail = () => {
     },
   ];
 
+  const uploadVideo = (channelName: string) => {
+    window.electron.ipcRenderer.sendMessage('upload-video', {
+      mail: selectMail,
+      channelName: channelName,
+    } as UploadVideoArgs);
+  };
+
+  useEffect(() => {
+    const removeListenEventUploadVideo = window.electron.ipcRenderer.on(
+      'upload-video',
+      (res) => {
+        const responseContent = res as any;
+        api.info({
+          message: responseContent.message,
+          placement: 'bottomRight',
+        });
+      },
+    );
+    return () => {
+      removeListenEventUploadVideo();
+    };
+  }, []);
+
   return (
     <div className="flex-1 h-full p-4 overflow-auto">
+      {contextHolder}
       <Modal
         title="Thêm dữ liệu mail"
         open={isOpenAddMailModal}
@@ -108,23 +135,19 @@ export const ManageMail = () => {
         title="Thêm video vào kênh"
         open={isOpenAddVideoChannelModal}
         onCancel={() => setIsOpenAddVideoChannelModal(false)}
-        footer={
-          <Row justify={'end'}>
-            <Space>
-              <Button
-                onClick={() => {
-                  setIsOpenAddVideoChannelModal(false);
-                  setSelectMail(undefined);
-                }}
-              >
-                Từ chối
-              </Button>
-              <Button type="primary">Xác nhận</Button>
-            </Space>
-          </Row>
-        }
+        footer={<></>}
       >
-        <FormUploadVideo mailInfo={selectMail} />
+        <FormUploadVideo
+          mailInfo={selectMail}
+          onDeny={() => {
+            setSelectMail(undefined);
+            setIsOpenAddVideoChannelModal(false);
+          }}
+          onSubmit={(channelName) => {
+            uploadVideo(channelName);
+            setIsOpenAddVideoChannelModal(false);
+          }}
+        />
       </Modal>
       <div className="w-fit mx-auto">
         <h1 className="text-3xl font-medium mb-10 bg-gradient-to-r from-red-600 to-orange-600 inline-block text-transparent bg-clip-text pb-1">

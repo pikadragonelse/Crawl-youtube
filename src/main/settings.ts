@@ -21,11 +21,20 @@ ipcMain.on('select-path-save-data', async (event, args) => {
 });
 
 ipcMain.on('save-settings', (event, args: DataSettings) => {
-  const { folderPath } = args;
+  const { folderPath, tmProxyKey } = args;
 
   const dataFilePath = path.join(path.resolve(), 'settings.json');
   let currentSettings: DataSettings = loadSettings(dataFilePath);
-  currentSettings['folderPath'] = folderPath;
+  currentSettings = {
+    ...currentSettings,
+    folderPath,
+    tmProxyKey,
+  };
+  currentSettingsGlobal = {
+    ...currentSettingsGlobal,
+    folderPath,
+    tmProxyKey,
+  };
   currentSettingsGlobal['folderPath'] = folderPath;
   fs.writeFileSync(dataFilePath, JSON.stringify(currentSettings, null, 2));
 

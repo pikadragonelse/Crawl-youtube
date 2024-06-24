@@ -7,6 +7,7 @@ import { DataSettings } from '../models/settings';
 
 type FieldType = {
   folderPath: string;
+  tmProxyKey: string;
 };
 
 export const Settings = () => {
@@ -20,6 +21,7 @@ export const Settings = () => {
       const dataSettings = res as DataSettings;
       form.setFieldsValue({
         folderPath: dataSettings.folderPath,
+        tmProxyKey: dataSettings.tmProxyKey,
       });
     });
   }, []);
@@ -90,6 +92,9 @@ export const Settings = () => {
               </Button>
             </Col>
           </Row>
+          <Form.Item<FieldType> name="tmProxyKey">
+            <Input placeholder="Nhập TM proxy key" />
+          </Form.Item>
           <Row justify={'end'}>
             <Form.Item>
               <Button
