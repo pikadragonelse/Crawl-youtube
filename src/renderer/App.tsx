@@ -7,6 +7,7 @@ import { Sidebar } from '../components/sidebar';
 import { CrawlPage } from '../pages/crawl-page';
 import { DashboardManageChannel } from '../pages/manage-page/index';
 import { Settings } from '../pages/settings';
+import { ManageMail } from '../pages/manage-mail/manage-mail';
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
                 element={<DashboardManageChannel />}
               />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/manage-mail" element={<ManageMail />} />
             </Routes>
           </div>
         </Router>

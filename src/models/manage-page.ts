@@ -5,10 +5,3 @@ export interface VideoInfo {
   videoPath: string;
   videoLinkToShow: string;
 }
-
-export interface ChannelInfo {
-  name: string;
-  avtPath: string;
-  bannerPath: string;
-  videos?: VideoInfo[];
-}

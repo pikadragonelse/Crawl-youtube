@@ -5,6 +5,7 @@ import {
   YoutubeOutlined,
   AppstoreOutlined,
   SettingOutlined,
+  MailOutlined,
 } from '@ant-design/icons';
 import clsx from 'clsx';
 type SidebarItem = {
@@ -23,6 +24,11 @@ const listSidebarItem: SidebarItem[] = [
     title: 'Quản lý kênh',
     icon: <AppstoreOutlined className="text-2xl" />,
     href: '/manage-page',
+  },
+  {
+    title: 'Quản lý mail',
+    icon: <MailOutlined className="text-2xl" />,
+    href: '/manage-mail',
   },
   {
     title: 'Cài đặt',
@@ -44,7 +50,7 @@ export const Sidebar = () => {
           <Link to={item.href} className="" key={index}>
             <li
               className={clsx(
-                'flex items-center pl-10 py-2 mx-2 rounded-xl gap-2 mb-1  transition-all',
+                'flex items-center pl-10 py-2 mx-2 rounded-xl gap-2 mb-4  transition-all',
                 {
                   'hover:bg-zinc-200': location.pathname !== item.href,
                   'bg-red-600 text-zinc-50 hover:bg-red-600':

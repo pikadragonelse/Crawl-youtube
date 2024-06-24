@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ItemList } from '../../components/item-list';
-import { ChannelInfo } from '../../models/manage-page';
+import { ChannelInfo } from '../../models/crawl-page';
 
 export const ManageChannel = () => {
   const [listChannelInfo, setListChannelInfo] = useState<ChannelInfo[]>([]);
