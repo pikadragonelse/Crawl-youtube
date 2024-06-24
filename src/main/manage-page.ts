@@ -1,8 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { ChannelInfo, VideoInfo } from '../models/manage-page';
+import { VideoInfo } from '../models/manage-page';
 import { ipcMain } from 'electron';
 import { currentSettingsGlobal } from './settings';
+import { ChannelInfo } from '../models/crawl-page';
 
 // Đường dẫn tới folder 'channels'
 
@@ -28,8 +29,8 @@ const getChannelInfo = (channelName: string): ChannelInfo | null => {
 
   return {
     name: channelName,
-    avtPath,
-    bannerPath,
+    avatar: avtPath,
+    banner: bannerPath,
   };
 };
 

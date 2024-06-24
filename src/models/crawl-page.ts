@@ -9,6 +9,7 @@ export interface Video {
 }
 
 export interface ChannelInfo {
+  key?: number;
   name: string;
   avatar: string;
   banner: string;

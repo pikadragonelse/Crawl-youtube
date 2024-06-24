@@ -1,11 +1,12 @@
 import { Button, message, Modal, Row, Space, Tooltip } from 'antd';
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { ChannelInfo, VideoInfo } from '../models/manage-page';
+import { VideoInfo } from '../models/manage-page';
 import { LinkOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import copy from 'copy-to-clipboard';
 import { VideoDetailInfo } from './video-detail-info';
+import { ChannelInfo } from '../models/crawl-page';
 
 const showMap: Record<
   string,
@@ -48,7 +49,7 @@ export const ItemList: React.FC<ItemList> = ({
         </div>
       </Modal>
       <img
-        src={type === 'channel' ? channel?.avtPath : video?.thumbnailPath}
+        src={type === 'channel' ? channel?.avatar : video?.thumbnailPath}
         alt=""
         className="w-full h-full object-cover group-hover:scale-110 transition-all"
       />
