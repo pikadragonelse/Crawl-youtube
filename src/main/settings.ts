@@ -4,10 +4,10 @@ import path from 'path';
 import fs from 'fs';
 import { DataSettings } from '../models/settings';
 import { ResponseElectron } from '../models/response';
-import { loadSettings } from './settings-utils';
+import { loadJSONFile } from '../utils/load-file';
 
-const dataFilePath = path.join(path.resolve(), 'settings.json');
-export let currentSettingsGlobal: DataSettings = loadSettings(dataFilePath);
+const dataFilePath = path.join(path.resolve(), 'Data-JSON/settings.json');
+export let currentSettingsGlobal: DataSettings = loadJSONFile(dataFilePath);
 
 ipcMain.on('select-path-save-data', async (event, args) => {
   try {
@@ -21,11 +21,22 @@ ipcMain.on('select-path-save-data', async (event, args) => {
 });
 
 ipcMain.on('save-settings', (event, args: DataSettings) => {
-  const { folderPath } = args;
+  const { folderPath, tmProxyKey, quantityUpload } = args;
 
-  const dataFilePath = path.join(path.resolve(), 'settings.json');
-  let currentSettings: DataSettings = loadSettings(dataFilePath);
-  currentSettings['folderPath'] = folderPath;
+  const dataFilePath = path.join(path.resolve(), 'Data-JSON/settings.json');
+  let currentSettings: DataSettings = loadJSONFile(dataFilePath);
+  currentSettings = {
+    ...currentSettings,
+    folderPath,
+    tmProxyKey,
+    quantityUpload,
+  };
+  currentSettingsGlobal = {
+    ...currentSettingsGlobal,
+    folderPath,
+    tmProxyKey,
+    quantityUpload,
+  };
   currentSettingsGlobal['folderPath'] = folderPath;
   fs.writeFileSync(dataFilePath, JSON.stringify(currentSettings, null, 2));
 
@@ -36,7 +47,7 @@ ipcMain.on('save-settings', (event, args: DataSettings) => {
 });
 
 ipcMain.on('get-settings', (event, args) => {
-  const dataFilePath = path.join(path.resolve(), 'settings.json');
-  let currentSettings: DataSettings = loadSettings(dataFilePath);
+  const dataFilePath = path.join(path.resolve(), 'Data-JSON/settings.json');
+  let currentSettings: DataSettings = loadJSONFile(dataFilePath);
   event.reply('get-settings', currentSettings);
 });

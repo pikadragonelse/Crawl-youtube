@@ -34,7 +34,7 @@ const getChannelInfo = (channelName: string): ChannelInfo | null => {
   };
 };
 
-const getVideoOfChannel = (channelName: string): VideoInfo[] | null => {
+export const getVideoOfChannel = (channelName: string): VideoInfo[] | null => {
   const { folderPath } = currentSettingsGlobal;
   const channelsPath = path.join(
     folderPath !== '' && folderPath != null ? folderPath : path.resolve(),

@@ -13,7 +13,11 @@ export type Channels =
   | 'select-path-save-data'
   | 'save-settings'
   | 'get-settings'
-  | 'receive-data-settings';
+  | 'receive-data-settings'
+  | 'upload-video'
+  | 'get-list-mail'
+  | 'add-multiple-mail'
+  | 'delete-mail';
 
 const electronHandler = {
   ipcRenderer: {

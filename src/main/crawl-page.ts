@@ -11,11 +11,11 @@ import workerpool from 'workerpool';
 import log from 'electron-log';
 import { sleep } from './util';
 import fs from 'fs';
-import { downloadImage, getVideosFromChannel } from './crawl-page-util';
 import { Channels } from './preload';
 import { mainWindowId } from './main';
 import { baseUrl } from './manage-page';
 import { currentSettingsGlobal } from './settings';
+import { downloadImage, getVideosFromChannel } from './util/crawl-page-util';
 
 // export const getMainWindow = () => {
 //   const ID = mainWindowId * 1;

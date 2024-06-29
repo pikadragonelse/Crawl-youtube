@@ -17,6 +17,8 @@ import { resolveHtmlPath } from './util';
 import './crawl-page';
 import './manage-page';
 import './settings';
+import './upload-video';
+import './mail-info';
 
 class AppUpdater {
   constructor() {

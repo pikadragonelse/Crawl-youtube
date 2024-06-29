@@ -23,6 +23,9 @@ release/build
 .erb/dll
 channels
 ffmpeg
+Data
+resources
+Data-JSON
 
 .idea
 npm-debug.log.*

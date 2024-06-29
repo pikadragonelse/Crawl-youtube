@@ -61,7 +61,10 @@ export const FormImportMail: React.FC<FormImportMail> = ({
                 dataTable.push(mailInfo);
               }
             });
-
+            window.electron.ipcRenderer.sendMessage(
+              'add-multiple-mail',
+              dataTable,
+            );
             onUploadedFile(dataTable);
             message.success(`Thêm thành công ${dataTable.length} mail!`);
             clearDataInput();

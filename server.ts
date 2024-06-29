@@ -1,12 +1,12 @@
 import express from 'express';
 import path from 'path';
 import { DataSettings } from './src/models/settings';
-import { loadSettings } from './src/main/settings-utils';
+import { loadSettings } from './src/main/util/settings-utils';
 
 const app = express();
 const port = 3001;
 
-const dataFilePath = path.join(path.resolve(), 'settings.json');
+const dataFilePath = path.join(path.resolve(), 'Data-JSON/settings.json');
 const { folderPath }: DataSettings = loadSettings(dataFilePath);
 
 // Đường dẫn tới folder 'channels'
