@@ -1,14 +1,9 @@
-import { Button, Col, Form, Input, notification, Row } from 'antd';
+import { Button, Col, Form, Input, InputNumber, notification, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect, useState } from 'react';
 import { FolderOpenOutlined, SaveOutlined } from '@ant-design/icons';
 import { ResponseElectron } from '../models/response';
 import { DataSettings } from '../models/settings';
-
-type FieldType = {
-  folderPath: string;
-  tmProxyKey: string;
-};
 
 export const Settings = () => {
   const [form] = useForm();
@@ -22,6 +17,7 @@ export const Settings = () => {
       form.setFieldsValue({
         folderPath: dataSettings.folderPath,
         tmProxyKey: dataSettings.tmProxyKey,
+        quantityUpload: dataSettings.quantityUpload,
       });
     });
   }, []);
@@ -56,7 +52,7 @@ export const Settings = () => {
     };
   }, []);
 
-  const saveSettings = (data: FieldType) => {
+  const saveSettings = (data: DataSettings) => {
     window.electron.ipcRenderer.sendMessage('save-settings', data);
   };
 
@@ -72,11 +68,11 @@ export const Settings = () => {
         <Form
           form={form}
           layout="vertical"
-          onFinish={(data: FieldType) => saveSettings(data)}
+          onFinish={(data: DataSettings) => saveSettings(data)}
         >
           <Row>
             <Col span={19}>
-              <Form.Item<FieldType>
+              <Form.Item<DataSettings>
                 name="folderPath"
                 label="Địa chỉ lưu trữ dữ liệu tải về"
               >
@@ -92,9 +88,27 @@ export const Settings = () => {
               </Button>
             </Col>
           </Row>
-          <Form.Item<FieldType> name="tmProxyKey">
-            <Input placeholder="Nhập TM proxy key" />
-          </Form.Item>
+          <Row>
+            <Col span={6}>
+              <Form.Item<DataSettings>
+                name="quantityUpload"
+                label="Số lượng video mỗi lần upload"
+              >
+                <InputNumber
+                  placeholder="Nhập số lượng video (max = 10)"
+                  max={10}
+                  min={0}
+                  className="w-full"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={15} offset={2}>
+              <Form.Item<DataSettings> name="tmProxyKey" label="TM proxy key">
+                <Input placeholder="Nhập TM proxy key" />
+              </Form.Item>
+            </Col>
+          </Row>
+
           <Row justify={'end'}>
             <Form.Item>
               <Button

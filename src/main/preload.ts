@@ -14,7 +14,10 @@ export type Channels =
   | 'save-settings'
   | 'get-settings'
   | 'receive-data-settings'
-  | 'upload-video';
+  | 'upload-video'
+  | 'get-list-mail'
+  | 'add-multiple-mail'
+  | 'delete-mail';
 
 const electronHandler = {
   ipcRenderer: {

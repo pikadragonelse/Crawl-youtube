@@ -14,12 +14,13 @@ import { loginYoutube } from '../utils/login-youtube';
 import { uploadVideo } from '../utils/upload-video';
 import { getVideoOfChannel } from './manage-page';
 import { sleep } from './util';
-import { loadSettings } from './settings-utils';
 import { MailInfo } from '../models/mail';
+import { ResGetTMProxy } from '../models/proxy';
+import { loadJSONFile } from '../utils/load-file';
 
 const APP_DATA_PATH = execSync('echo %APPDATA%').toString().trim();
 
-export const getProxy = async () => {
+export const getProxy: () => Promise<ResGetTMProxy> = async () => {
   try {
     let resp = await axios.post(
       `https://tmproxy.com/api/proxy/get-new-proxy`,
@@ -32,7 +33,8 @@ export const getProxy = async () => {
         },
       },
     );
-    return resp.data.data.https;
+
+    return resp.data;
   } catch (e) {
     console.log(e);
     return undefined;
@@ -63,19 +65,21 @@ const runProcessUpload = async (
     executablePath: `${path.join(path.resolve(), 'Data/Chrome/chrome.exe')}`,
   });
 
-  const dataFilePath = path.join(path.resolve(), 'uploaded-channel.json');
-  let mapHistoryUploadChannel: Record<string, number> =
-    loadSettings(dataFilePath);
-  if (mapHistoryUploadChannel[channelName] === undefined) {
-    mapHistoryUploadChannel[channelName] = 0;
+  const dataFilePath = path.join(
+    path.resolve(),
+    'Data-JSON/uploaded-channel.json',
+  );
+  let mailMap: Record<string, Record<string, number>> = loadJSONFile(
+    dataFilePath,
+  );
+  const historyUploadOfMail: Record<string, number> = mailMap[mail.mail];
+  if (historyUploadOfMail[channelName] === undefined) {
+    historyUploadOfMail[channelName] = 0;
   }
 
   browser.on('disconnected', () => {
     console.log('Browser has been closed or disconnected');
-    writeFileSync(
-      dataFilePath,
-      JSON.stringify(mapHistoryUploadChannel, null, 2),
-    );
+    writeFileSync(dataFilePath, JSON.stringify(mailMap, null, 2));
   });
 
   const page = await browser.newPage();
@@ -87,13 +91,24 @@ const runProcessUpload = async (
     await loginYoutube(page, mail);
     const listVideo = getVideoOfChannel(channelName);
 
+    if (historyUploadOfMail[channelName] === listVideo?.length) {
+      console.log('All videos have been uploaded');
+      await browser.close();
+      return;
+    }
+
     if (listVideo != null) {
       for (
         ;
-        mapHistoryUploadChannel[channelName] < listVideo?.length;
-        mapHistoryUploadChannel[channelName]++
+        historyUploadOfMail[channelName] < currentSettingsGlobal.quantityUpload;
+        historyUploadOfMail[channelName]++
       ) {
-        const video = listVideo[mapHistoryUploadChannel[channelName]];
+        if (historyUploadOfMail[channelName] === listVideo?.length) {
+          console.log('All videos have been uploaded');
+          await browser.close();
+          return;
+        }
+        const video = listVideo[historyUploadOfMail[channelName]];
         await uploadVideo(page, video.videoPath, video.title);
         await sleep(5000);
       }
@@ -119,38 +134,19 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
     'Data/Extension/always_active',
   );
 
-  let proxy = await getProxy();
+  let response = await getProxy();
 
-  while (proxy === null || proxy === '' || proxy === undefined) {
-    event.reply('upload-video', { message: 'Wait to get new proxy' });
-    await sleep(30000);
-    proxy = await getProxy();
-    log.info('Wait to get new proxy');
-  }
+  if (response.data.https !== '') {
+    const proxy = response.data.https;
 
-  if (existsSync(PROFILE_PATH)) {
-    log.info('Exist profile: ');
+    if (existsSync(PROFILE_PATH)) {
+      log.info('Exist profile: ');
 
-    const profile: ProfileItem = {
-      email: mail.mail,
-      proxy: proxy,
-      parsedProxy: parseProxyModel(proxy, 'http'),
-    };
-
-    await runProcessUpload(
-      profile,
-      PROFILE_PATH,
-      pathToExtension,
-      channelName,
-      mail,
-    );
-  } else {
-    log.info('Dont exist profile: ');
-    const profile = await createProfile(mail.mail);
-
-    if (profile != null) {
-      profile.proxy = proxy;
-      profile.parsedProxy = parseProxyModel(proxy, 'http');
+      const profile: ProfileItem = {
+        email: mail.mail,
+        proxy: proxy,
+        parsedProxy: parseProxyModel(proxy, 'http'),
+      };
 
       await runProcessUpload(
         profile,
@@ -159,6 +155,26 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
         channelName,
         mail,
       );
+    } else {
+      log.info('Dont exist profile: ');
+      const profile = await createProfile(mail.mail);
+
+      if (profile != null) {
+        profile.proxy = proxy;
+        profile.parsedProxy = parseProxyModel(proxy, 'http');
+
+        await runProcessUpload(
+          profile,
+          PROFILE_PATH,
+          pathToExtension,
+          channelName,
+          mail,
+        );
+      }
     }
+  } else {
+    event.reply('upload-video', {
+      message: `Thử lại sau ${response.message.split(' ')[2]} giây để lấy proxy mới!`,
+    });
   }
 });

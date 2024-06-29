@@ -37,6 +37,7 @@ export const ManageMail = () => {
     useState(false);
   const [selectMail, setSelectMail] = useState<MailInfo>();
   const [api, contextHolder] = notification.useNotification();
+  const [reloadData, setReloadData] = useState(0);
 
   const actionColumns: TableProps<MailInfo>['columns'] = [
     ...(columns as any),
@@ -46,7 +47,7 @@ export const ManageMail = () => {
       render: (_, record) => (
         <div className="flex gap-4 ">
           {actionList.map((action, index) => (
-            <Tooltip title={action.tooltip}>
+            <Tooltip title={action.tooltip} key={index}>
               <div
                 key={index}
                 onClick={() => action.onClick(record)}
@@ -60,6 +61,10 @@ export const ManageMail = () => {
       ),
     },
   ];
+
+  const deleteMail = (mailInfo: MailInfo) => {
+    window.electron.ipcRenderer.sendMessage('delete-mail', mailInfo);
+  };
 
   const actionList: Array<ActionMailTable> = [
     {
@@ -78,9 +83,45 @@ export const ManageMail = () => {
     {
       icon: <DeleteOutlined className="text-red-600" />,
       tooltip: 'Xóa mail',
-      onClick: (record?: MailInfo) => {},
+      onClick: (record: MailInfo) => {
+        deleteMail(record);
+      },
     },
   ];
+
+  const getListMail = () => {
+    window.electron.ipcRenderer.sendMessage('get-list-mail');
+  };
+
+  useEffect(() => {
+    getListMail();
+  }, [reloadData]);
+
+  useEffect(() => {
+    const removeGetListMailEvent = window.electron.ipcRenderer.on(
+      'get-list-mail',
+      (res) => {
+        const listMail = res as MailInfo[];
+        const finalList = listMail.map((mail, index) => {
+          mail.key = index + 1;
+          return mail;
+        });
+        setDataTable(finalList);
+      },
+    );
+
+    const removeDeleteMailEvent = window.electron.ipcRenderer.on(
+      'delete-mail',
+      () => {
+        setReloadData((prev) => prev + 1);
+      },
+    );
+
+    return () => {
+      removeGetListMailEvent();
+      removeDeleteMailEvent();
+    };
+  }, []);
 
   const uploadVideo = (channelName: string) => {
     window.electron.ipcRenderer.sendMessage('upload-video', {
@@ -119,7 +160,12 @@ export const ManageMail = () => {
             {
               label: 'Thêm nhiều mail',
               children: (
-                <FormImportMail onUploadedFile={(data) => setDataTable(data)} />
+                <FormImportMail
+                  onUploadedFile={() => {
+                    setReloadData((prev) => prev + 1);
+                    setIsOpenAddMailModal(false);
+                  }}
+                />
               ),
               key: 'importMail',
             },

@@ -2,8 +2,8 @@ import fs from 'fs';
 import { google } from 'googleapis';
 require('dotenv').config();
 
-import { ChannelInfo, Video } from '../models/crawl-page';
 import axios from 'axios';
+import { ChannelInfo, Video } from '../../models/crawl-page';
 
 // API Key từ biến môi trường
 const API_KEY = process.env.GOOGLE_API_KEY;
