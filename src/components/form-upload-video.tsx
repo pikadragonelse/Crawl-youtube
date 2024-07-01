@@ -1,4 +1,4 @@
-import { Button, Row, Select, Space, Table, TableProps } from 'antd';
+import { Button, message, Row, Select, Space, Table, TableProps } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { MailInfo, defaultMailInfo } from '../models/mail';
 import { ChannelInfo } from '../models/crawl-page';
@@ -47,6 +47,10 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
   };
 
   const uploadById = () => {
+    if (listSelectedVideo.length < 1) {
+      message.info('Vui lòng chọn video để tải lên!');
+      return;
+    }
     const args: UploadVideoArgs = {
       channelName: channelInfoMap?.[selectedKeyChannel]?.name || '',
       mail: mailInfo,
