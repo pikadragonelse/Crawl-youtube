@@ -7,7 +7,8 @@ import { ResponseElectron } from '../models/response';
 import { loadJSONFile } from '../utils/load-file';
 
 const dataFilePath = path.join(path.resolve(), 'Data-JSON/settings.json');
-export let currentSettingsGlobal: DataSettings = loadJSONFile(dataFilePath);
+export let currentSettingsGlobal: DataSettings =
+  loadJSONFile(dataFilePath) || {};
 
 ipcMain.on('select-path-save-data', async (event, args) => {
   try {
