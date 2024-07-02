@@ -18,7 +18,8 @@ import './crawl-page';
 import './manage-page';
 import './settings';
 import './upload-video';
-import './mail-info';
+import child from 'child_process';
+import { stderr } from 'process';
 
 class AppUpdater {
   constructor() {
@@ -134,6 +135,28 @@ app
   .whenReady()
   .then(() => {
     createWindow();
+
+    const serverProcess = child.exec(
+      'npx ts-node server.ts',
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error(`error: ${error.message}`);
+          return;
+        }
+
+        if (stderr) {
+          console.error(`stderr: ${stderr}`);
+          return;
+        }
+
+        console.log(`stdout:\n${stdout}`);
+      },
+    );
+
+    serverProcess.on('close', (code) => {
+      console.log(`server.js exited with code ${code}`);
+    });
+
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.

@@ -43,7 +43,7 @@ export async function createProfile(email: string) {
   if (!existsSync(PROFILE_PATH)) mkdir(PROFILE_PATH, () => {});
   if (!existsSync(PROFILE_PATH + '/Default'))
     mkdir(PROFILE_PATH + '/Default', () => {});
-  const PREFERENCE_PATH = path.join(path.resolve(), 'resources/References');
+  const PREFERENCE_PATH = path.join(path.resolve(), 'References');
   log.info('PREFERENCE_PATH: ' + PREFERENCE_PATH);
   var files = readdirSync(PREFERENCE_PATH);
   // get base preferences
@@ -55,7 +55,7 @@ export async function createProfile(email: string) {
       ),
     ) as any,
   );
-  const FINGER_PATH = path.join(path.resolve(), 'resources/Finger');
+  const FINGER_PATH = path.join(path.resolve(), 'Finger');
   log.info('FINGER_PATH: ' + FINGER_PATH);
   files = readdirSync(FINGER_PATH);
   var base_finger = JSON.parse(

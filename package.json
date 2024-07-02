@@ -26,7 +26,7 @@
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never && npm run build:dll",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
-    "start": "ts-node ./.erb/scripts/check-port-in-use.js && concurrently \"npm run start:renderer\" \"npx ts-node server.ts\"",
+    "start": "ts-node ./.erb/scripts/check-port-in-use.js && concurrently \"npm run start:renderer\" ",
     "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
@@ -191,15 +191,22 @@
       "Data",
       "Data-JSON",
       "channels",
-      "resources"
+      "resources",
+      "Finger",
+      "References",
+      ".env"
     ],
     "extraResources": [
-      "./assets/**",
+      "./assets/**"
+    ],
+    "extraFiles": [
       "./ffmpeg/**",
       "./Data/**",
       "./Data-JSON/**",
       "./channels/**",
-      "./resources/**"
+      "./Finger/**",
+      "./References/**",
+      "./.env"
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
