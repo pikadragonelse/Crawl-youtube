@@ -10,12 +10,12 @@ export async function getIp(proxy: Proxy | null = null) {
     let scheme = proxy.protocol == 'http' ? 'http' : 'socks5h';
     var proxyOption = '';
     if (proxy.username) {
-      console.log(proxy.username);
+      log.info(proxy.username);
       proxyOption = `${scheme}://${proxy.username}:${proxy.password}@${proxy.ip}:${proxy.port}`;
     } else {
       proxyOption = `${scheme}://${proxy.ip}:${proxy.port}`;
     }
-    console.log(proxyOption);
+    log.info(proxyOption);
     try {
       if (scheme == 'http') {
         const httpsAgent = new HttpsProxyAgent(proxyOption);

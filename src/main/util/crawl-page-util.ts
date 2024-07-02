@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { google } from 'googleapis';
 require('dotenv').config();
+import log from 'electron-log';
 
 import axios from 'axios';
 import { ChannelInfo, Video } from '../../models/crawl-page';
@@ -96,6 +97,6 @@ export const downloadImage = async (url: string, outputPath: string) => {
       writer.on('error', reject);
     });
   } catch (error) {
-    console.error(`Error when download img from ${url}:`, error);
+    log.error(`Error when download img from ${url}:`, error);
   }
 };

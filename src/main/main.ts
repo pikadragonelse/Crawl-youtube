@@ -18,8 +18,10 @@ import './crawl-page';
 import './manage-page';
 import './settings';
 import './upload-video';
-import child from 'child_process';
-import { stderr } from 'process';
+import './mail-info';
+import express from 'express';
+import { DataSettings } from '../models/settings';
+import { loadJSONFile } from '../utils/load-file';
 
 class AppUpdater {
   constructor() {
@@ -116,7 +118,7 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  // new AppUpdater();
 };
 
 /**
@@ -136,26 +138,34 @@ app
   .then(() => {
     createWindow();
 
-    const serverProcess = child.exec(
-      'npx ts-node server.ts',
-      (error, stdout, stderr) => {
-        if (error) {
-          console.error(`error: ${error.message}`);
-          return;
-        }
+    const appServer = express();
+    const port = 3001;
 
-        if (stderr) {
-          console.error(`stderr: ${stderr}`);
-          return;
-        }
+    const dataFilePath = path.join(path.resolve(), 'Data-JSON/settings.json');
+    const { folderPath }: DataSettings = loadJSONFile(dataFilePath);
 
-        console.log(`stdout:\n${stdout}`);
-      },
+    // Đường dẫn tới folder 'channels'
+    const channelsPath = path.join(
+      folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
+      'channels',
     );
 
-    serverProcess.on('close', (code) => {
-      console.log(`server.js exited with code ${code}`);
+    // Phục vụ các tệp tĩnh trong thư mục 'channels'
+    appServer.use('/channels', express.static(channelsPath));
+
+    appServer.get('/', (req, res) => {
+      res.send(
+        'Server is running. Access images at /channels/channelName/channel-info/...',
+      );
     });
+
+    appServer
+      .listen(port, () => {
+        log.info(`Server is running at http://localhost:${port}`);
+      })
+      .on('error', (error) => {
+        log.error('Running server error: ', error);
+      });
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

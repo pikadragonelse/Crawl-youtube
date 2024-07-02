@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A foundation for scalable desktop apps",
   "author": {
-    "name": "Dragonpielse"
+    "name": "Pikadragonelse"
   },
   "main": "./dist/main/main.js",
   "scripts": {

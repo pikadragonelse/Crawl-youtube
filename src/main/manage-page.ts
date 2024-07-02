@@ -4,6 +4,7 @@ import { VideoInfo } from '../models/manage-page';
 import { ipcMain } from 'electron';
 import { currentSettingsGlobal } from './settings';
 import { ChannelInfo } from '../models/crawl-page';
+import log from 'electron-log';
 
 // Đường dẫn tới folder 'channels'
 
@@ -23,7 +24,7 @@ const getChannelInfo = (channelName: string): ChannelInfo | null => {
   const bannerPath = `${baseUrl}/${channelName}/channel-info/${channelName}-banner.jpg`;
 
   if (!fs.existsSync(path.join(channelInfoPath, `${channelName}-avt.jpg`))) {
-    console.error(`Không tìm thấy AVT hoặc Banner cho kênh ${channelName}`);
+    log.error(`Không tìm thấy AVT hoặc Banner cho kênh ${channelName}`);
     return null;
   }
 
@@ -64,7 +65,7 @@ export const getVideoOfChannel = (channelName: string): VideoInfo[] | null => {
           videoLinkToShow: fullVideoPath,
         };
       } else {
-        console.error(
+        log.error(
           `Không tìm thấy đủ thông tin cho video ID ${videoId} trong kênh ${channelName}`,
         );
         return null;

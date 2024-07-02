@@ -136,7 +136,7 @@ export async function fakeLocation(profile: ProfileItem, staticProxy = true) {
   try {
     preferences = JSON.parse(preferences);
   } catch (e) {
-    console.log(e);
+    log.info(e);
     throw e;
   }
   let locationHost = 'http://ip-api.com/json';
@@ -146,7 +146,7 @@ export async function fakeLocation(profile: ProfileItem, staticProxy = true) {
   }
   let temp = await axios.get(locationHost);
   let location = temp.data;
-  console.log(location);
+  log.info(location);
   preferences['gologin']['name'] = profile.email;
   if ('profile' in preferences) {
     preferences['profile']['name'] = profile.email;

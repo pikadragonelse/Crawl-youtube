@@ -28,6 +28,7 @@ resources
 Data-JSON
 Finger
 References
+worker
 
 .idea
 npm-debug.log.*

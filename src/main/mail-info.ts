@@ -3,9 +3,11 @@ import path from 'path';
 import { MailInfo } from '../models/mail';
 import { loadJSONFile } from '../utils/load-file';
 import { writeFileSync } from 'fs';
+import log from 'electron-log';
 
 ipcMain.on('get-list-mail', (event) => {
   const dataFilePath = path.join(path.resolve(), 'Data-JSON/mail-info.json');
+  log.info(dataFilePath);
   let listMail: MailInfo[] = loadJSONFile(dataFilePath) || [];
   event.reply('get-list-mail', listMail);
 });

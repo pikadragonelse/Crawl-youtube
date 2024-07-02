@@ -38,7 +38,7 @@ export const getProxy: () => Promise<ResGetTMProxy> = async () => {
 
     return resp.data;
   } catch (e) {
-    console.log(e);
+    log.info(e);
     return undefined;
   }
 };
@@ -69,7 +69,7 @@ const getListVideoByListId = (listVideoId: string[], channelName: string) => {
         videoLinkToShow: '',
       });
     } else {
-      console.error(
+      log.error(
         `Không tìm thấy đủ thông tin cho video ID ${id} trong kênh ${channelName}`,
       );
       return null;
@@ -124,7 +124,7 @@ const runProcessUpload = async (
     }
 
     browser.on('disconnected', () => {
-      console.log('Browser has been closed or disconnected');
+      log.info('Browser has been closed or disconnected');
       writeFileSync(dataFilePath, JSON.stringify(mailMap, null, 2));
     });
 
@@ -133,7 +133,7 @@ const runProcessUpload = async (
       const listVideo = getVideoOfChannel(channelName);
 
       if (historyUploadOfMail[channelName] === listVideo?.length) {
-        console.log('All videos have been uploaded');
+        log.info('All videos have been uploaded');
         await browser.close();
         return;
       }
@@ -146,7 +146,7 @@ const runProcessUpload = async (
           historyUploadOfMail[channelName]++
         ) {
           if (historyUploadOfMail[channelName] === listVideo?.length) {
-            console.log('All videos have been uploaded');
+            log.info('All videos have been uploaded');
             await browser.close();
             return;
           }
@@ -157,7 +157,7 @@ const runProcessUpload = async (
       }
       await browser.close();
     } catch (error) {
-      console.log(error);
+      log.error(error);
     }
   } else {
     try {
@@ -167,7 +167,7 @@ const runProcessUpload = async (
       if (listVideo != null) {
         for (let index = 0; index < listVideo.length; index++) {
           if (index === listVideo?.length) {
-            console.log('All videos have been uploaded');
+            log.info('All videos have been uploaded');
             await browser.close();
             return;
           }
@@ -178,7 +178,7 @@ const runProcessUpload = async (
       }
       await browser.close();
     } catch (error) {
-      console.log(error);
+      log.error(error);
     }
   }
 };

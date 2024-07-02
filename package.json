@@ -194,7 +194,9 @@
       "resources",
       "Finger",
       "References",
-      ".env"
+      ".env",
+      "worker",
+      "server.ts"
     ],
     "extraResources": [
       "./assets/**"
@@ -206,7 +208,8 @@
       "./channels/**",
       "./Finger/**",
       "./References/**",
-      "./.env"
+      "./.env",
+      "./worker/**"
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
