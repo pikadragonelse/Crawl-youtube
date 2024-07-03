@@ -1,5 +1,6 @@
 export interface ArgCrawlData {
-  channelInput: string;
+  channelId: string;
+  quantity: number;
 }
 
 export interface Video {
@@ -9,7 +10,7 @@ export interface Video {
 }
 
 export interface ChannelInfo {
-  key?: number;
+  id: string;
   name: string;
   avatar: string;
   banner: string;

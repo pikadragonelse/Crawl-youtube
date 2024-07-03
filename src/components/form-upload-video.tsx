@@ -35,8 +35,8 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
 }) => {
   const [listChannelInfo, setListChannelInfo] = useState<ChannelInfo[]>([]);
   const [channelInfoMap, setChannelInfoMap] =
-    useState<Record<number, ChannelInfo>>();
-  const [selectedKeyChannel, setSelectedKeyChannel] = useState(1);
+    useState<Record<string, ChannelInfo>>();
+  const [selectedKeyChannel, setSelectedKeyChannel] = useState('');
   const [listVideo, setListVideo] = useState<VideoInfo[]>([]);
   const [listSelectedVideo, setListSelectedVideo] = useState<VideoInfo[]>([]);
 
@@ -68,12 +68,9 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
       const listChannelInfo = res as ChannelInfo[];
       const channelInfoMap: Record<number, ChannelInfo> = {};
 
-      const listOfficialChannelInfo = listChannelInfo.map((channel, index) => {
-        channelInfoMap[index + 1] = channel;
-        return { ...channel, key: index + 1 };
-      });
       setChannelInfoMap(channelInfoMap);
-      setListChannelInfo(listOfficialChannelInfo);
+      setListChannelInfo(listChannelInfo);
+      setSelectedKeyChannel(listChannelInfo[0].id);
     });
   }, []);
 
@@ -126,7 +123,7 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
           options={listChannelInfo.map((channel) => {
             return {
               label: channel.name,
-              value: channel.key,
+              value: channel.id,
             } as DefaultOptionType;
           })}
         />

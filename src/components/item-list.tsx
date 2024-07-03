@@ -55,12 +55,12 @@ export const ItemList: React.FC<ItemList> = ({
       />
       <div className="absolute z-10 flex flex-col justify-center w-full px-2 py-4 bottom-0 bg-black/50 backdrop-blur text-zinc-50 ">
         <div className="">
-          <h3 className="font-bold line-clamp-1">
+          <h3 className="font-bold line-clamp-1 mb-2">
             {type === 'channel' ? channel?.name : video?.title}
           </h3>
-          <p className={clsx({ hidden: !showMap[type].isShowSubInfo })}>
+          {/* <p className={clsx({ hidden: !showMap[type].isShowSubInfo })}>
             13:12
-          </p>
+          </p> */}
         </div>
         <Row justify={'end'}>
           <Space>

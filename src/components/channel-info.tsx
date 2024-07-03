@@ -2,8 +2,8 @@ import React from 'react';
 import { CrawlChannelInfoResponse } from '../models/crawl-page';
 import { Skeleton } from 'antd';
 
-export type ChannelInfo = { channelInfo?: CrawlChannelInfoResponse };
-export const ChannelInfo: React.FC<ChannelInfo> = ({ channelInfo }) => {
+export type ChannelInfoUI = { channelInfo?: CrawlChannelInfoResponse };
+export const ChannelInfoUI: React.FC<ChannelInfoUI> = ({ channelInfo }) => {
   return (
     <div className="flex items-end">
       <div className=" relative w-full">

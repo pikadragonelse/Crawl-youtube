@@ -8,7 +8,7 @@ import {
   CrawlStatus,
   InfoVideo,
 } from '../../models/crawl-page';
-import { ChannelInfo } from '../../components/channel-info';
+import { ChannelInfoUI } from '../../components/channel-info';
 import { CrawlListHeader } from '../../components/crawl-list-header';
 import { crawlShowStatusMap, crawlStatusMap } from './constant';
 import { ItemCrawlList } from '../../components/item-crawl-list';
@@ -27,11 +27,13 @@ export const CrawlPage = () => {
   });
   const [channelInfo, setChannelInfo] = useState<CrawlChannelInfoResponse>();
 
-  const crawlData = (channelUrl: string) => {
+  const crawlData = (data: { channelId: string; quantity: number }) => {
     setIsCanCrawl(false);
-    window.electron.ipcRenderer.sendMessage('crawl-channel', {
-      channelInput: channelUrl,
-    } as ArgCrawlData);
+
+    window.electron.ipcRenderer.sendMessage(
+      'crawl-channel',
+      data as ArgCrawlData,
+    );
   };
 
   const handledListState = () => {
@@ -100,7 +102,13 @@ export const CrawlPage = () => {
           chóng!
         </p>
       </div>
-      <CrawlForm isDisable={!isCanCrawl} />
+      <CrawlForm
+        isDisable={!isCanCrawl}
+        onSubmit={(data) => {
+          setIsStartCrawl(true);
+          crawlData(data);
+        }}
+      />
       <div
         className={clsx(
           'h-fit overflow-hidden transition-all opacity-100 duration-500',
@@ -113,7 +121,7 @@ export const CrawlPage = () => {
           <div className="w-full">
             <div className="">
               <h1 className="text-lg font-medium mb-4">Thông tin kênh</h1>
-              <ChannelInfo channelInfo={channelInfo} />
+              <ChannelInfoUI channelInfo={channelInfo} />
             </div>
             <div className="mt-64 ">
               <h1 className="text-lg font-medium mb-4">Danh sách video</h1>
