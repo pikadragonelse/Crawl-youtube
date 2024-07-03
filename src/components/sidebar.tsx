@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/icon.png';
 import { Link, useLocation } from 'react-router-dom';
 import {
   YoutubeOutlined,

@@ -195,8 +195,7 @@
       "Finger",
       "References",
       ".env",
-      "worker",
-      "server.ts"
+      "worker"
     ],
     "extraResources": [
       "./assets/**"

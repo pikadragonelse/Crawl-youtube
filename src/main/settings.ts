@@ -5,6 +5,7 @@ import fs from 'fs';
 import { DataSettings } from '../models/settings';
 import { ResponseElectron } from '../models/response';
 import { loadJSONFile } from '../utils/load-file';
+import { triggerRestart } from '../utils/restartServer';
 
 const dataFilePath = path.join(path.resolve(), 'Data-JSON/settings.json');
 export let currentSettingsGlobal: DataSettings =
@@ -40,7 +41,7 @@ ipcMain.on('save-settings', (event, args: DataSettings) => {
   };
   currentSettingsGlobal['folderPath'] = folderPath;
   fs.writeFileSync(dataFilePath, JSON.stringify(currentSettings, null, 2));
-
+  triggerRestart();
   event.reply('save-settings', {
     status: 'success',
     message: 'Lưu thông tin cài đặt thành công!',

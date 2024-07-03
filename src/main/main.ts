@@ -138,20 +138,9 @@ app
   .then(() => {
     createWindow();
 
+    let server: any;
     const appServer = express();
     const port = 3001;
-
-    const dataFilePath = path.join(path.resolve(), 'Data-JSON/settings.json');
-    const { folderPath }: DataSettings = loadJSONFile(dataFilePath);
-
-    // Đường dẫn tới folder 'channels'
-    const channelsPath = path.join(
-      folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
-      'channels',
-    );
-
-    // Phục vụ các tệp tĩnh trong thư mục 'channels'
-    appServer.use('/channels', express.static(channelsPath));
 
     appServer.get('/', (req, res) => {
       res.send(
@@ -159,13 +148,38 @@ app
       );
     });
 
-    appServer
-      .listen(port, () => {
-        log.info(`Server is running at http://localhost:${port}`);
-      })
-      .on('error', (error) => {
-        log.error('Running server error: ', error);
+    // Add a restart endpoint
+    appServer.get('/restart', (req, res) => {
+      res.send('Restarting server...');
+      server.close(() => {
+        log.info('Server has been shut down for restart.');
+        startServer(); // Call function to start the server again
       });
+    });
+
+    function startServer() {
+      const dataFilePath = path.join(path.resolve(), 'Data-JSON/settings.json');
+      const { folderPath } = loadJSONFile(dataFilePath); // Adjust this based on how you load your settings
+
+      // Đường dẫn tới folder 'channels'
+      const channelsPath = path.join(
+        folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
+        'channels',
+      );
+
+      // Phục vụ các tệp tĩnh trong thư mục 'channels'
+      appServer.use('/channels', express.static(channelsPath));
+      server = appServer
+        .listen(port, () => {
+          log.info(`Server is running at http://localhost:${port}`);
+        })
+        .on('error', (error) => {
+          log.error('Running server error: ', error);
+        });
+    }
+
+    // Start the server for the first time
+    startServer();
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
