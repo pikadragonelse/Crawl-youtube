@@ -11,8 +11,6 @@ import workerpool from 'workerpool';
 import log from 'electron-log';
 import { sleep } from './util';
 import fs from 'fs';
-import { Channels } from './preload';
-import { mainWindowId } from './main';
 import { baseUrl } from './manage-page';
 import { currentSettingsGlobal } from './settings';
 import { downloadImage, getVideosFromChannel } from './util/crawl-page-util';
@@ -37,7 +35,7 @@ const downloadAllVideosFromChannel = async (
   channelId: string,
 ): Promise<void> => {
   const pool = workerpool.pool(
-    path.join(path.resolve(), 'src/utils/crawl-worker.js'),
+    path.join(path.resolve(), 'worker/crawl-worker.js'),
     { maxWorkers: 2 },
   );
   try {
@@ -132,7 +130,7 @@ const downloadAllVideosFromChannel = async (
             finalPath,
           ])
           .then(async () => {
-            console.log(`Downloaded video: ${video.title}`);
+            log.info(`Downloaded video: ${video.title}`);
             listCrawling[video.videoId] = {
               ...listCrawling[video.videoId],
               status: 'done',
@@ -141,7 +139,7 @@ const downloadAllVideosFromChannel = async (
             await sleep(1000);
           })
           .catch(async (error) => {
-            console.error(`Error when download video: ${video.title}`, error);
+            log.error(`Error when download video: ${video.title}`, error);
             listCrawling[video.videoId] = {
               ...listCrawling[video.videoId],
               status: 'error',
@@ -157,7 +155,7 @@ const downloadAllVideosFromChannel = async (
       await sleep(5000);
     }
   } catch (err) {
-    console.error('Got the error when download video from:', err);
+    log.error('Got the error when download video from:', err);
   }
 };
 
@@ -182,6 +180,6 @@ ipcMain.on('crawl-channel', async (event, args: ArgCrawlData) => {
     // }
     await downloadAllVideosFromChannel(event, channelInput);
   } catch (error) {
-    console.error('Error when get channel ID:', error);
+    log.error('Error when get channel ID:', error);
   }
 });

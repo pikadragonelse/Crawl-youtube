@@ -4,3 +4,10 @@ export interface MailInfo {
   password: string;
   recoverMail: string;
 }
+
+export const defaultMailInfo = {
+  key: 0,
+  mail: '',
+  password: '',
+  recoverMail: '',
+};

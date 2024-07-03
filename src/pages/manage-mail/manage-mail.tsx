@@ -182,6 +182,10 @@ export const ManageMail = () => {
         open={isOpenAddVideoChannelModal}
         onCancel={() => setIsOpenAddVideoChannelModal(false)}
         footer={<></>}
+<<<<<<< HEAD
+=======
+        className="w-[700px]"
+>>>>>>> feat/each-upload
       >
         <FormUploadVideo
           mailInfo={selectMail}
