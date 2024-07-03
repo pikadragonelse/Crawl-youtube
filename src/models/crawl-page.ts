@@ -26,5 +26,7 @@ export type InfoVideo = {
   key: number;
   title: string;
   urlImage: string;
-  status: 'waiting' | 'downloading' | 'done' | 'error';
+  status: CrawlStatus;
 };
+
+export type CrawlStatus = 'waiting' | 'downloading' | 'done' | 'error';
