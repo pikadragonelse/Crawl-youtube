@@ -3,6 +3,7 @@ import React from 'react';
 import { LoadingOutlined } from '@ant-design/icons';
 import { CrawlStatus, InfoVideo } from '../models/crawl-page';
 import clsx from 'clsx';
+import { convertToStringTime } from '../utils/stringifyTime';
 
 export type ItemCrawlList = {
   key: React.Key;
@@ -36,7 +37,7 @@ export const ItemCrawlList: React.FC<ItemCrawlList> = ({
       <List.Item.Meta
         avatar={<Avatar src={itemCrawl.urlImage} size={60} shape="square" />}
         title={<span className="font-medium text-xl">{itemCrawl.title}</span>}
-        description="13:12"
+        description={convertToStringTime(itemCrawl.duration)}
       />
     </List.Item>
   );

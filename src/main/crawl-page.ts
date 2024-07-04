@@ -78,11 +78,15 @@ const downloadAllVideosFromChannel = async (
 
         // Lưu tên video vào file văn bản
         const textPath = `${videoDir}/${video.videoId}.txt`;
+        const durationPath = `${videoDir}/${video.videoId}-duration.txt`;
         fs.writeFileSync(textPath, video.title);
+        fs.writeFileSync(durationPath, video.duration.toString());
+
         listCrawling[video.videoId] = {
           key: countKey,
           status: 'waiting',
           title: video.title,
+          duration: video.duration,
           urlImage: '',
         };
 

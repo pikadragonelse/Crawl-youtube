@@ -27,3 +27,12 @@ ipcMain.on('delete-mail', (event, mailInfo: MailInfo) => {
   writeFileSync(dataFilePath, JSON.stringify(listMail, null, 2));
   event.reply('delete-mail', listMail);
 });
+
+ipcMain.on('get-link-video-mail', (event, mail) => {
+  const dataFilePath = path.join(
+    path.resolve(),
+    'Data-JSON/uploaded-channel.json',
+  );
+  let mailMap: Record<string, Array<string>> = loadJSONFile(dataFilePath) || {};
+  event.reply('get-link-video-mail', mailMap[mail]);
+});

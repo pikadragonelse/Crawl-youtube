@@ -64,20 +64,25 @@ export const getVideoOfChannel = (channelName: string): VideoInfo[] | null => {
       const videoPath = path.join(videosPath, videoId);
       const thumbnailPath = `${baseUrl}/${channelName}/videos/${videoId}/${videoId}.jpg`;
       const videoInfoPath = path.join(videoPath, `${videoId}.txt`);
+      const videoDurationPath = path.join(videoPath, `${videoId}-duration.txt`);
       const fullVideoPath = `${baseUrl}/${channelName}/videos/${videoId}/full-${videoId}.mp4`;
 
       if (
         fs.existsSync(path.join(videoPath, `${videoId}.jpg`)) &&
         fs.existsSync(videoInfoPath) &&
+        fs.existsSync(videoDurationPath) &&
         fs.existsSync(path.join(videoPath, `full-${videoId}.mp4`))
       ) {
         const title = fs.readFileSync(videoInfoPath, 'utf8');
+        const duration = fs.readFileSync(videoDurationPath, 'utf8');
+
         return {
           id: videoId,
           title,
           thumbnailPath,
           videoPath: path.join(videoPath, `full-${videoId}.mp4`),
           videoLinkToShow: fullVideoPath,
+          duration: Number(duration),
         };
       } else {
         log.error(

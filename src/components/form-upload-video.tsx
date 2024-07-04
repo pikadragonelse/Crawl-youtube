@@ -1,23 +1,42 @@
-import { Button, message, Row, Select, Space, Table, TableProps } from 'antd';
+import {
+  Button,
+  List,
+  message,
+  Row,
+  Select,
+  Space,
+  Table,
+  TableProps,
+  Tabs,
+  Tooltip,
+} from 'antd';
 import React, { useEffect, useState } from 'react';
 import { MailInfo, defaultMailInfo } from '../models/mail';
 import { ChannelInfo } from '../models/crawl-page';
 import { DefaultOptionType } from 'antd/es/select';
 import { VideoInfo } from '../models/manage-page';
 import { UploadVideoArgs } from '../models/upload-video';
+import { convertToStringTime } from '../utils/stringifyTime';
+import copy from 'copy-to-clipboard';
+import { CopyOutlined } from '@ant-design/icons';
 
 const columns: TableProps<VideoInfo>['columns'] = [
   {
     title: 'video',
     render: (_, record) => (
       <div className="flex gap-2">
-        <div className="w-16 h-16 rounded-xl overflow-hidden">
+        <div className="w-16 min-w-16 h-16 rounded-xl overflow-hidden">
           <img
             src={record.thumbnailPath}
             className="w-full h-full object-cover"
           />
         </div>
-        <span>{record.title}</span>
+        <div className="flex flex-col gap-1">
+          <span>{record.title}</span>
+          <span className="text-sm">
+            {convertToStringTime(record.duration)}
+          </span>
+        </div>
       </div>
     ),
   },
@@ -39,6 +58,8 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
   const [selectedKeyChannel, setSelectedKeyChannel] = useState('');
   const [listVideo, setListVideo] = useState<VideoInfo[]>([]);
   const [listSelectedVideo, setListSelectedVideo] = useState<VideoInfo[]>([]);
+  const [currentKey, setCurrentKey] = useState('1');
+  const [listVideoLinkOfMail, setListVideoLinkOfMail] = useState(['']);
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: VideoInfo[]) => {
@@ -98,69 +119,127 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
         setListVideo(addKeyList);
       },
     );
+
+    const removeGetLinkVideoMailEvent = window.electron.ipcRenderer.on(
+      'get-link-video-mail',
+      (res) => {
+        const listVideoLink = res as string[];
+        setListVideoLinkOfMail(listVideoLink);
+      },
+    );
     return () => {
       removeGetVideoChannelEvent();
+      removeGetLinkVideoMailEvent();
     };
   }, []);
 
+  useEffect(() => {
+    if (currentKey === '2') {
+      window.electron.ipcRenderer.sendMessage(
+        'get-link-video-mail',
+        mailInfo.mail,
+      );
+    }
+  }, [currentKey]);
+
   return (
     <div className="">
-      Đăng tải video từ kênh
-      <div className="">
-        <Select
-          value={selectedKeyChannel}
-          onChange={(value) => setSelectedKeyChannel(value)}
-          className="w-full my-1"
-          optionRender={(option) =>
-            channelInfoMap != null ? (
-              <div className="flex gap-2 items-center py-2">
-                <img
-                  src={channelInfoMap[(option.value as any) || 0].avatar}
-                  className="w-20 h-20 rounded-xl"
-                />
-                <span>{channelInfoMap[(option.value as any) || 0].name}</span>
+      <Tabs
+        activeKey={currentKey}
+        onChange={(value) => setCurrentKey(value)}
+        items={[
+          {
+            key: '1',
+            label: 'Tải video lên',
+            children: (
+              <div className="">
+                Đăng tải video từ kênh
+                <div className="">
+                  <Select
+                    value={selectedKeyChannel}
+                    onChange={(value) => setSelectedKeyChannel(value)}
+                    className="w-full my-1"
+                    optionRender={(option) =>
+                      channelInfoMap != null ? (
+                        <div className="flex gap-2 items-center py-2">
+                          <img
+                            src={
+                              channelInfoMap[(option.value as any) || 0].avatar
+                            }
+                            className="w-20 h-20 rounded-xl"
+                          />
+                          <span>
+                            {channelInfoMap[(option.value as any) || 0].name}
+                          </span>
+                        </div>
+                      ) : undefined
+                    }
+                    options={listChannelInfo.map((channel) => {
+                      return {
+                        label: channel.name,
+                        value: channel.id,
+                      } as DefaultOptionType;
+                    })}
+                  />
+                  lên kênh youtube của{' '}
+                  <span className="text-red-600">{mailInfo?.mail}</span>?
+                  <Table
+                    columns={columns}
+                    dataSource={listVideo}
+                    rowSelection={{
+                      ...rowSelection,
+                    }}
+                    scroll={{ y: 250 }}
+                    className="mt-4"
+                  />
+                  <Row justify={'end'} className="mt-4">
+                    <Space>
+                      <Button onClick={onDeny}>Từ chối</Button>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          uploadById();
+                        }}
+                      >
+                        Xác nhận
+                      </Button>
+                    </Space>
+                  </Row>
+                </div>
               </div>
-            ) : undefined
-          }
-          options={listChannelInfo.map((channel) => {
-            return {
-              label: channel.name,
-              value: channel.id,
-            } as DefaultOptionType;
-          })}
-        />
-        lên kênh youtube của{' '}
-        <span className="text-red-600">{mailInfo?.mail}</span>?
-        <Table
-          columns={columns}
-          dataSource={listVideo}
-          rowSelection={{
-            ...rowSelection,
-          }}
-          scroll={{ y: 250 }}
-          className="mt-4"
-        />
-        <Row justify={'end'} className="mt-4">
-          <Space>
-            <Button onClick={onDeny}>Từ chối</Button>
-            <Button
-              type="primary"
-              onClick={() =>
-                // onSubmit(
-                //   channelInfoMap != null
-                //     ? channelInfoMap[selectedKeyChannel].name
-                //     : '',
-                // )
-                {
-                  uploadById();
-                }
-              }
-            >
-              Xác nhận
-            </Button>
-          </Space>
-        </Row>
-      </div>
+            ),
+          },
+          {
+            key: '2',
+            label: 'Video hiện có trong ' + mailInfo.mail,
+            children: (
+              <div className="">
+                <List
+                  itemLayout="horizontal"
+                  dataSource={listVideoLinkOfMail}
+                  bordered
+                  renderItem={(item) => (
+                    <List.Item>
+                      {item}{' '}
+                      <Tooltip title="Sao chép">
+                        <CopyOutlined
+                          onClick={() => {
+                            copy(item);
+                            message.success(
+                              'Sao chép đường dẫn đến video thành công',
+                            );
+                          }}
+                          className="ml-1"
+                        />
+                      </Tooltip>
+                    </List.Item>
+                  )}
+                />
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import axios from 'axios';
 import { ChannelInfo, Video } from '../../models/crawl-page';
 import { currentSettingsGlobal } from '../settings';
 import path from 'path';
+import { parseISO8601Duration } from '../../utils/parseTime';
 
 // API Key từ biến môi trường
 const API_KEY = process.env.GOOGLE_API_KEY;
@@ -47,50 +48,39 @@ export const getVideosFromChannel = async (
 
   let videos: Video[] = [];
   let nextPageToken: string | undefined = undefined;
-  let countDownloadedVideo = 1;
-  let videoIds: string[] = [];
+  let countDownloadedVideo = 0;
+
   while (true) {
-    // Get list playlist from channel
     const playlistResponse: any = await youtube.playlistItems.list({
       part: ['snippet'],
       playlistId: uploadsPlaylistId,
       pageToken: nextPageToken,
-      maxResults: 10000,
+      maxResults: 50,
     });
 
-    // Get path of channel
-    const { folderPath } = currentSettingsGlobal;
-    const channelsPath = path.join(
-      folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
-      'channels',
-    );
-    const channelPath = path.join(
-      channelsPath,
-      channelItem.snippet?.title || '',
-    );
+    const videoIds: string[] =
+      playlistResponse.data.items?.map(
+        (item: any) => item.snippet?.resourceId?.videoId,
+      ) || [];
 
-    // Get path of video and build check video map to check if video is exist in data
-    const videosPath = path.join(channelPath, 'videos');
+    if (videoIds.length === 0) break;
 
-    const checkVideoIdMap: Record<string, boolean> = {};
-    if (fs.existsSync(videosPath)) {
-      videoIds = fs.readdirSync(videosPath);
-      videoIds.forEach((videoId) => {
-        checkVideoIdMap[videoId] = true;
-      });
-    }
+    const videoResponse: any = await youtube.videos.list({
+      part: ['contentDetails', 'snippet'],
+      id: videoIds,
+    });
 
-    // Download video and save to data
-    playlistResponse.data.items?.forEach((item: any) => {
-      const videoId = item.snippet?.resourceId?.videoId;
+    for (const item of videoResponse.data.items) {
+      const videoId = item.id;
+      const duration = item.contentDetails?.duration;
+      const title = item.snippet?.title;
+      const thumbnails = item.snippet?.thumbnails;
 
-      // If video is exist -> go to next video
-      if (checkVideoIdMap[videoId] === true) return;
+      if (!videoId || !duration || !title) continue;
 
-      // If quantity is enough, stop
-      if (countDownloadedVideo <= quantity) {
-        const title = item.snippet?.title;
-        const thumbnails = item.snippet?.thumbnails;
+      const durationInSeconds = parseISO8601Duration(duration);
+
+      if (durationInSeconds < 180) {
         let thumbnailUrl = '';
 
         if (thumbnails) {
@@ -103,18 +93,25 @@ export const getVideosFromChannel = async (
           }
         }
 
-        if (videoId && title) {
-          videos.push({ videoId, title, thumbnail: thumbnailUrl });
-        }
+        videos.push({
+          videoId,
+          title,
+          thumbnail: thumbnailUrl,
+          duration: durationInSeconds,
+        });
         countDownloadedVideo++;
       }
-    });
 
-    // If don't have next page of token or quantity of video is enough -> stop
-    nextPageToken = playlistResponse.data.nextPageToken;
-    if (!nextPageToken || countDownloadedVideo > quantity) {
-      break;
+      if (countDownloadedVideo >= quantity) break;
     }
+
+    if (
+      !playlistResponse.data.nextPageToken ||
+      countDownloadedVideo >= quantity
+    )
+      break;
+
+    nextPageToken = playlistResponse.data.nextPageToken;
   }
 
   return { channelInfo: channelInfo, videos: videos };

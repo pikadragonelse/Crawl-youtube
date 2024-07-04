@@ -7,6 +7,7 @@ export interface Video {
   videoId: string;
   title: string;
   thumbnail: string;
+  duration: number;
 }
 
 export interface ChannelInfo {
@@ -28,6 +29,7 @@ export type InfoVideo = {
   title: string;
   urlImage: string;
   status: CrawlStatus;
+  duration: number;
 };
 
 export type CrawlStatus = 'waiting' | 'downloading' | 'done' | 'error';
