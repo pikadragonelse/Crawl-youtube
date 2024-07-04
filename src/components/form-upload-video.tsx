@@ -66,7 +66,9 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
 
     window.electron.ipcRenderer.once('get-info-channel', (res) => {
       const listChannelInfo = res as ChannelInfo[];
-      const channelInfoMap: Record<number, ChannelInfo> = {};
+      const channelInfoMap: Record<string, ChannelInfo> = {};
+
+      channelInfoMap[listChannelInfo[0].id] = listChannelInfo[0];
 
       setChannelInfoMap(channelInfoMap);
       setListChannelInfo(listChannelInfo);

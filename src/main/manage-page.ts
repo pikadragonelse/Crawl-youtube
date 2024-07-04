@@ -97,6 +97,9 @@ ipcMain.on('get-info-channel', (event, args) => {
     folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
     'channels',
   );
+  if (!fs.existsSync(channelsPath)) {
+    fs.mkdirSync(channelsPath);
+  }
   const channels = fs.readdirSync(channelsPath);
   const channelsInfo = channels
     .map((channelName) => getChannelInfo(channelName))
