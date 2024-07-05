@@ -19,7 +19,6 @@ import { UploadVideoArgs } from '../models/upload-video';
 import { convertToStringTime } from '../utils/stringifyTime';
 import copy from 'copy-to-clipboard';
 import { CopyOutlined } from '@ant-design/icons';
-
 const columns: TableProps<VideoInfo>['columns'] = [
   {
     title: 'video',
@@ -46,11 +45,13 @@ export type FormUploadVideo = {
   mailInfo?: MailInfo;
   onDeny?: () => void;
   onSubmit?: (channelName: string) => void;
+  isReset?: number;
 };
 export const FormUploadVideo: React.FC<FormUploadVideo> = ({
   mailInfo = defaultMailInfo,
   onDeny,
   onSubmit = () => {},
+  isReset,
 }) => {
   const [listChannelInfo, setListChannelInfo] = useState<ChannelInfo[]>([]);
   const [channelInfoMap, setChannelInfoMap] =
@@ -60,10 +61,12 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
   const [listSelectedVideo, setListSelectedVideo] = useState<VideoInfo[]>([]);
   const [currentKey, setCurrentKey] = useState('1');
   const [listVideoLinkOfMail, setListVideoLinkOfMail] = useState(['']);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>(['']);
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: VideoInfo[]) => {
       setListSelectedVideo(selectedRows);
+      setSelectedRowKeys(selectedRowKeys);
     },
   };
 
@@ -142,6 +145,13 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
     }
   }, [currentKey]);
 
+  useEffect(() => {
+    setCurrentKey('1');
+    setListSelectedVideo([]);
+    setSelectedRowKeys([]);
+    console.log(isReset);
+  }, [isReset]);
+
   return (
     <div className="">
       <Tabs
@@ -188,6 +198,7 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
                     dataSource={listVideo}
                     rowSelection={{
                       ...rowSelection,
+                      selectedRowKeys,
                     }}
                     scroll={{ y: 250 }}
                     className="mt-4"
@@ -220,7 +231,7 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
                   bordered
                   renderItem={(item) => (
                     <List.Item>
-                      {item}{' '}
+                      <span>{item}</span>{' '}
                       <Tooltip title="Sao chép">
                         <CopyOutlined
                           onClick={() => {
