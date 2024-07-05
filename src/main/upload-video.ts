@@ -1,26 +1,26 @@
-import { execSync } from "child_process";
-import { ipcMain } from "electron";
-import path from "path";
-import { UploadVideoArgs } from "../models/upload-video";
-import { existsSync, mkdirSync, writeFileSync } from "fs";
-import { createProfile, fakeLocation } from "../utils/profile";
-import { ProfileItem } from "../models/profile";
-import puppeteer from "puppeteer";
-import axios from "axios";
-import { currentSettingsGlobal } from "./settings";
-import { parseProxyModel } from "../utils/proxy";
-import log from "electron-log";
-import { loginYoutube } from "../utils/login-youtube";
-import { uploadVideo } from "../utils/upload-video";
-import { getVideoOfChannel } from "./manage-page";
-import { sleep } from "./util";
-import { MailInfo } from "../models/mail";
-import { ResGetTMProxy } from "../models/proxy";
-import { loadJSONFile } from "../utils/load-file";
-import { VideoInfo } from "../models/manage-page";
-import fs from "fs";
+import { execSync } from 'child_process';
+import { ipcMain } from 'electron';
+import path from 'path';
+import { UploadVideoArgs } from '../models/upload-video';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { createProfile, fakeLocation } from '../utils/profile';
+import { ProfileItem } from '../models/profile';
+import puppeteer from 'puppeteer';
+import axios from 'axios';
+import { currentSettingsGlobal } from './settings';
+import { parseProxyModel } from '../utils/proxy';
+import log from 'electron-log';
+import { loginYoutube } from '../utils/login-youtube';
+import { uploadVideo } from '../utils/upload-video';
+import { getVideoOfChannel } from './manage-page';
+import { sleep } from './util';
+import { MailInfo } from '../models/mail';
+import { ResGetTMProxy } from '../models/proxy';
+import { loadJSONFile } from '../utils/load-file';
+import { VideoInfo } from '../models/manage-page';
+import fs from 'fs';
 
-const APP_DATA_PATH = execSync("echo %APPDATA%").toString().trim();
+const APP_DATA_PATH = execSync('echo %APPDATA%').toString().trim();
 
 export const getProxy: () => Promise<ResGetTMProxy> = async () => {
   try {
@@ -31,7 +31,7 @@ export const getProxy: () => Promise<ResGetTMProxy> = async () => {
       },
       {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       },
     );
@@ -47,11 +47,11 @@ const getListVideoByListId = (listVideoId: string[], channelName: string) => {
   const listVideo: VideoInfo[] = [];
   const { folderPath } = currentSettingsGlobal;
   const channelsPath = path.join(
-    folderPath !== "" && folderPath != null ? folderPath : path.resolve(),
-    "channels",
+    folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
+    'channels',
   );
   const channelPath = path.join(channelsPath, channelName);
-  const videosPath = path.join(channelPath, "videos");
+  const videosPath = path.join(channelPath, 'videos');
   listVideoId.map((id) => {
     const videoPath = path.join(videosPath, id);
     const videoInfoPath = path.join(videoPath, `${id}.txt`);
@@ -60,13 +60,14 @@ const getListVideoByListId = (listVideoId: string[], channelName: string) => {
       fs.existsSync(videoInfoPath) &&
       fs.existsSync(path.join(videoPath, `full-${id}.mp4`))
     ) {
-      const title = fs.readFileSync(videoInfoPath, "utf8");
+      const title = fs.readFileSync(videoInfoPath, 'utf8');
       listVideo.push({
         id: id,
         title,
-        thumbnailPath: "",
+        thumbnailPath: '',
         videoPath: path.join(videoPath, `full-${id}.mp4`),
-        videoLinkToShow: "",
+        videoLinkToShow: '',
+        duration: 0,
       });
     } else {
       log.error(
@@ -84,7 +85,7 @@ const runProcessUpload = async (
   pathToExtension: string,
   channelName: string,
   mail: MailInfo,
-  type: "byId" | "full" = "full",
+  type: 'byId' | 'full' = 'full',
   listVideoId: string[] = [],
 ) => {
   await fakeLocation(profile, true);
@@ -99,9 +100,9 @@ const runProcessUpload = async (
     ],
     headless: false,
 
-    ignoreDefaultArgs: ["--enable-automation"],
+    ignoreDefaultArgs: ['--enable-automation'],
     ignoreHTTPSErrors: true,
-    executablePath: `${path.join(path.resolve(), "Data/Chrome/chrome.exe")}`,
+    executablePath: `${path.join(path.resolve(), 'Data/Chrome/chrome.exe')}`,
   });
 
   const page = await browser.newPage();
@@ -109,10 +110,10 @@ const runProcessUpload = async (
   page.setDefaultTimeout(120000);
   page.setDefaultNavigationTimeout(60000);
 
-  if (type !== "byId") {
+  if (type !== 'byId') {
     const dataFilePath = path.join(
       path.resolve(),
-      "Data-JSON/uploaded-channel.json",
+      'Data-JSON/uploaded-channel.json',
     );
     let mailMap: Record<string, Record<string, number>> = loadJSONFile(
       dataFilePath,
@@ -123,8 +124,8 @@ const runProcessUpload = async (
       historyUploadOfMail[channelName] = 0;
     }
 
-    browser.on("disconnected", () => {
-      log.info("Browser has been closed or disconnected");
+    browser.on('disconnected', () => {
+      log.info('Browser has been closed or disconnected');
       writeFileSync(dataFilePath, JSON.stringify(mailMap, null, 2));
     });
 
@@ -133,7 +134,7 @@ const runProcessUpload = async (
       const listVideo = getVideoOfChannel(channelName);
 
       if (historyUploadOfMail[channelName] === listVideo?.length) {
-        log.info("All videos have been uploaded");
+        log.info('All videos have been uploaded');
         await browser.close();
         return;
       }
@@ -146,12 +147,12 @@ const runProcessUpload = async (
           historyUploadOfMail[channelName]++
         ) {
           if (historyUploadOfMail[channelName] === listVideo?.length) {
-            log.info("All videos have been uploaded");
+            log.info('All videos have been uploaded');
             await browser.close();
             return;
           }
           const video = listVideo[historyUploadOfMail[channelName]];
-          await uploadVideo(page, video.videoPath, video.title);
+          await uploadVideo(page, video.videoPath, video.title, channelName);
           await sleep(5000);
         }
       }
@@ -167,12 +168,12 @@ const runProcessUpload = async (
       if (listVideo != null) {
         for (let index = 0; index < listVideo.length; index++) {
           if (index === listVideo?.length) {
-            log.info("All videos have been uploaded");
+            log.info('All videos have been uploaded');
             await browser.close();
             return;
           }
           const video = listVideo[index];
-          await uploadVideo(page, video.videoPath, video.title);
+          await uploadVideo(page, video.videoPath, video.title, mail.mail);
           await sleep(5000);
         }
       }
@@ -183,35 +184,35 @@ const runProcessUpload = async (
   }
 };
 
-ipcMain.on("upload-video", async (event, args: UploadVideoArgs) => {
+ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
   const { mail, channelName, type, listVideoId } = args;
-  const rootPath = path.join(APP_DATA_PATH, "Youtube-Profiles");
+  const rootPath = path.join(APP_DATA_PATH, 'Youtube-Profiles');
   if (!existsSync(rootPath)) {
     mkdirSync(rootPath);
   }
   const PROFILE_PATH = path.join(
     APP_DATA_PATH,
-    "Youtube-Profiles/" + mail.mail,
+    'Youtube-Profiles/' + mail.mail,
   );
   const pathToExtension = path.join(
     path.resolve(),
-    "Data/Extension/always_active",
+    'Data/Extension/always_active',
   );
 
   let response = await getProxy();
 
-  if (response.data.https !== "") {
+  if (response.data.https !== '') {
     const proxy = response.data.https;
 
     if (existsSync(PROFILE_PATH)) {
-      log.info("Exist profile: ");
+      log.info('Exist profile: ');
 
       const profile: ProfileItem = {
         email: mail.mail,
         proxy: proxy,
-        parsedProxy: parseProxyModel(proxy, "http"),
+        parsedProxy: parseProxyModel(proxy, 'http'),
       };
-      if (type === "byId") {
+      if (type === 'byId') {
         await runProcessUpload(
           profile,
           PROFILE_PATH,
@@ -231,13 +232,13 @@ ipcMain.on("upload-video", async (event, args: UploadVideoArgs) => {
         );
       }
     } else {
-      log.info("Dont exist profile: ");
+      log.info('Dont exist profile: ');
       const profile = await createProfile(mail.mail);
 
       if (profile != null) {
         profile.proxy = proxy;
-        profile.parsedProxy = parseProxyModel(proxy, "http");
-        if (type === "byId") {
+        profile.parsedProxy = parseProxyModel(proxy, 'http');
+        if (type === 'byId') {
           await runProcessUpload(
             profile,
             PROFILE_PATH,
@@ -259,8 +260,8 @@ ipcMain.on("upload-video", async (event, args: UploadVideoArgs) => {
       }
     }
   } else {
-    event.reply("upload-video", {
-      message: `Thử lại sau ${response.message.split(" ")[2]} giây để lấy proxy mới!`,
+    event.reply('upload-video', {
+      message: `Thử lại sau ${response.message.split(' ')[2]} giây để lấy proxy mới!`,
     });
   }
 });

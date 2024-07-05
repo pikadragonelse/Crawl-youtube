@@ -38,6 +38,7 @@ export const ManageMail = () => {
   const [selectMail, setSelectMail] = useState<MailInfo>();
   const [api, contextHolder] = notification.useNotification();
   const [reloadData, setReloadData] = useState(0);
+  const [resetUploadVideoForm, setResetUploadVideoForm] = useState(0);
 
   const actionColumns: TableProps<MailInfo>['columns'] = [
     ...(columns as any),
@@ -146,6 +147,11 @@ export const ManageMail = () => {
     };
   }, []);
 
+  useEffect(() => {
+    setResetUploadVideoForm((prev) => prev + 1);
+    console.log(resetUploadVideoForm);
+  }, [isOpenAddVideoChannelModal]);
+
   return (
     <div className="flex-1 h-full p-4 overflow-auto">
       {contextHolder}
@@ -194,6 +200,7 @@ export const ManageMail = () => {
             uploadVideo(channelName);
             setIsOpenAddVideoChannelModal(false);
           }}
+          isReset={resetUploadVideoForm}
         />
       </Modal>
       <div className="w-fit mx-auto">

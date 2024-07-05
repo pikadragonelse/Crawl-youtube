@@ -1,6 +1,4 @@
-import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
-import { JSDOM } from 'jsdom';
-import axios from 'axios';
+import { ipcMain, IpcMainEvent } from 'electron';
 import {
   ArgCrawlData,
   CrawlChannelInfoResponse,
@@ -15,31 +13,22 @@ import { baseUrl } from './manage-page';
 import { currentSettingsGlobal } from './settings';
 import { downloadImage, getVideosFromChannel } from './util/crawl-page-util';
 
-// export const getMainWindow = () => {
-//   const ID = mainWindowId * 1;
-//   return BrowserWindow.fromId(ID);
-// };
-
-// export const sendMsgToRenderer = (channel: Channels, data: any) => {
-//   const mainWindow = getMainWindow();
-
-//   if (mainWindow != null) {
-//     mainWindow.webContents.send(channel, data);
-//   }
-// };
-
 const listCrawling: Record<string, InfoVideo> = {};
 
 const downloadAllVideosFromChannel = async (
   event: IpcMainEvent,
-  channelId: string,
+  data: ArgCrawlData,
 ): Promise<void> => {
+  const { channelId, quantity } = data;
   const pool = workerpool.pool(
     path.join(path.resolve(), 'worker/crawl-worker.js'),
     { maxWorkers: 2 },
   );
   try {
-    const { videos, channelInfo } = await getVideosFromChannel(channelId);
+    const { videos, channelInfo } = await getVideosFromChannel(
+      channelId,
+      quantity,
+    );
 
     // Create necessary folder
     const { folderPath } = currentSettingsGlobal;
@@ -61,11 +50,13 @@ const downloadAllVideosFromChannel = async (
     }
 
     // Get channel info path
+    const idChannelPath = `${channelDir}/${channelInfo.name}/channel-info/${channelInfo.name}-id.txt`;
     const avtPath = `${channelDir}/${channelInfo.name}/channel-info/${channelInfo.name}-avt.jpg`;
     const bannerPath = `${channelDir}/${channelInfo.name}/channel-info/${channelInfo.name}-banner.jpg`;
 
     // Waiting for create folder done and download avt and banner
     await sleep(2000);
+    fs.writeFileSync(idChannelPath, channelId);
     await downloadImage(channelInfo.avatar, avtPath);
     await downloadImage(channelInfo.banner, bannerPath);
 
@@ -87,11 +78,15 @@ const downloadAllVideosFromChannel = async (
 
         // Lưu tên video vào file văn bản
         const textPath = `${videoDir}/${video.videoId}.txt`;
+        const durationPath = `${videoDir}/${video.videoId}-duration.txt`;
         fs.writeFileSync(textPath, video.title);
+        fs.writeFileSync(durationPath, video.duration.toString());
+
         listCrawling[video.videoId] = {
           key: countKey,
           status: 'waiting',
           title: video.title,
+          duration: video.duration,
           urlImage: '',
         };
 
@@ -161,24 +156,8 @@ const downloadAllVideosFromChannel = async (
 
 // IPC handler để bắt đầu quá trình tải video
 ipcMain.on('crawl-channel', async (event, args: ArgCrawlData) => {
-  const { channelInput } = args;
   try {
-    // const response = await axios.get(channelInput, {});
-    // const html = new JSDOM(response.data);
-    // const linkIdChannel = html.window.document.querySelector(
-    //   'link[rel="canonical"]',
-    // );
-    // let channelUrl = '';
-    // let channelId = '';
-
-    // if (linkIdChannel != null) {
-    //   channelUrl = linkIdChannel.getAttribute('href') || '';
-    // }
-    // if (channelUrl !== '') {
-    //   const listPath = channelUrl.split('/');
-    //   channelId = listPath[listPath.length - 1];
-    // }
-    await downloadAllVideosFromChannel(event, channelInput);
+    await downloadAllVideosFromChannel(event, args);
   } catch (error) {
     log.error('Error when get channel ID:', error);
   }

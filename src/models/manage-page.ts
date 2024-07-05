@@ -5,4 +5,5 @@ export interface VideoInfo {
   thumbnailPath: string;
   videoPath: string;
   videoLinkToShow: string;
+  duration: number;
 }

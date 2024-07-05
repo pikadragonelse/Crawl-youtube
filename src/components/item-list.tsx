@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import copy from 'copy-to-clipboard';
 import { VideoDetailInfo } from './video-detail-info';
 import { ChannelInfo } from '../models/crawl-page';
+import { convertToStringTime } from '../utils/stringifyTime';
 
 const showMap: Record<
   string,
@@ -59,7 +60,7 @@ export const ItemList: React.FC<ItemList> = ({
             {type === 'channel' ? channel?.name : video?.title}
           </h3>
           <p className={clsx({ hidden: !showMap[type].isShowSubInfo })}>
-            13:12
+            {convertToStringTime(video?.duration || 0)}
           </p>
         </div>
         <Row justify={'end'}>

@@ -1,8 +1,12 @@
 import React from 'react';
 import { VideoInfo } from '../models/manage-page';
+import { convertToStringTime } from '../utils/stringifyTime';
 
-export type VideoDetailInfo = { videoInfo?: VideoInfo };
-export const VideoDetailInfo: React.FC<VideoDetailInfo> = ({ videoInfo }) => {
+export type VideoDetailInfo = { videoInfo?: VideoInfo; isReset?: boolean };
+export const VideoDetailInfo: React.FC<VideoDetailInfo> = ({
+  videoInfo,
+  isReset,
+}) => {
   return (
     <div className="">
       {videoInfo != null ? (

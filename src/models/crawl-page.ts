@@ -1,15 +1,17 @@
 export interface ArgCrawlData {
-  channelInput: string;
+  channelId: string;
+  quantity: number;
 }
 
 export interface Video {
   videoId: string;
   title: string;
   thumbnail: string;
+  duration: number;
 }
 
 export interface ChannelInfo {
-  key?: number;
+  id: string;
   name: string;
   avatar: string;
   banner: string;
@@ -26,5 +28,8 @@ export type InfoVideo = {
   key: number;
   title: string;
   urlImage: string;
-  status: 'waiting' | 'downloading' | 'done' | 'error';
+  status: CrawlStatus;
+  duration: number;
 };
+
+export type CrawlStatus = 'waiting' | 'downloading' | 'done' | 'error';

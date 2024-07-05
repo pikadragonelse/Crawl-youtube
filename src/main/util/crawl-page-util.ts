@@ -5,6 +5,9 @@ import log from 'electron-log';
 
 import axios from 'axios';
 import { ChannelInfo, Video } from '../../models/crawl-page';
+import { currentSettingsGlobal } from '../settings';
+import path from 'path';
+import { parseISO8601Duration } from '../../utils/parseTime';
 
 // API Key từ biến môi trường
 const API_KEY = process.env.GOOGLE_API_KEY;
@@ -12,6 +15,7 @@ const API_KEY = process.env.GOOGLE_API_KEY;
 // Hàm để lấy danh sách video từ kênh
 export const getVideosFromChannel = async (
   channelId: string,
+  quantity: number,
 ): Promise<{ channelInfo: ChannelInfo; videos: Video[] }> => {
   const youtube = google.youtube({
     version: 'v3',
@@ -21,7 +25,6 @@ export const getVideosFromChannel = async (
   const channelResponse = await youtube.channels.list({
     part: ['snippet', 'brandingSettings', 'contentDetails'],
     id: [channelId],
-    maxResults: 10,
   });
 
   const channelItem = channelResponse.data.items?.[0];
@@ -37,6 +40,7 @@ export const getVideosFromChannel = async (
   }
 
   const channelInfo: ChannelInfo = {
+    id: channelId,
     name: channelItem.snippet?.title || '',
     avatar: channelItem.snippet?.thumbnails?.high?.url || '',
     banner: channelItem.brandingSettings?.image?.bannerExternalUrl || '',
@@ -44,40 +48,70 @@ export const getVideosFromChannel = async (
 
   let videos: Video[] = [];
   let nextPageToken: string | undefined = undefined;
+  let countDownloadedVideo = 0;
 
   while (true) {
     const playlistResponse: any = await youtube.playlistItems.list({
       part: ['snippet'],
       playlistId: uploadsPlaylistId,
-      maxResults: 50,
       pageToken: nextPageToken,
+      maxResults: 50,
     });
 
-    playlistResponse.data.items?.forEach((item: any) => {
-      const videoId = item.snippet?.resourceId?.videoId;
+    const videoIds: string[] =
+      playlistResponse.data.items?.map(
+        (item: any) => item.snippet?.resourceId?.videoId,
+      ) || [];
+
+    if (videoIds.length === 0) break;
+
+    const videoResponse: any = await youtube.videos.list({
+      part: ['contentDetails', 'snippet'],
+      id: videoIds,
+    });
+
+    for (const item of videoResponse.data.items) {
+      const videoId = item.id;
+      const duration = item.contentDetails?.duration;
       const title = item.snippet?.title;
       const thumbnails = item.snippet?.thumbnails;
-      let thumbnailUrl = '';
 
-      if (thumbnails) {
-        if (thumbnails.maxres) {
-          thumbnailUrl = thumbnails.maxres.url;
-        } else if (thumbnails.high) {
-          thumbnailUrl = thumbnails.high.url;
-        } else {
-          thumbnailUrl = thumbnails.default?.url || '';
+      if (!videoId || !duration || !title) continue;
+
+      const durationInSeconds = parseISO8601Duration(duration);
+
+      if (durationInSeconds < 180) {
+        let thumbnailUrl = '';
+
+        if (thumbnails) {
+          if (thumbnails.maxres) {
+            thumbnailUrl = thumbnails.maxres.url;
+          } else if (thumbnails.high) {
+            thumbnailUrl = thumbnails.high.url;
+          } else {
+            thumbnailUrl = thumbnails.default?.url || '';
+          }
         }
+
+        videos.push({
+          videoId,
+          title,
+          thumbnail: thumbnailUrl,
+          duration: durationInSeconds,
+        });
+        countDownloadedVideo++;
       }
 
-      if (videoId && title) {
-        videos.push({ videoId, title, thumbnail: thumbnailUrl });
-      }
-    });
+      if (countDownloadedVideo >= quantity) break;
+    }
+
+    if (
+      !playlistResponse.data.nextPageToken ||
+      countDownloadedVideo >= quantity
+    )
+      break;
 
     nextPageToken = playlistResponse.data.nextPageToken;
-    if (!nextPageToken) {
-      break;
-    }
   }
 
   return { channelInfo: channelInfo, videos: videos };

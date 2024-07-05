@@ -4,7 +4,7 @@ import { ConfigProvider } from 'antd';
 import { StyleProvider } from '@ant-design/cssinjs';
 import 'tailwindcss/tailwind.css';
 import { Sidebar } from '../components/sidebar';
-import { CrawlPage } from '../pages/crawl-page';
+import { CrawlPage } from '../pages/crawl-page/crawl-page';
 import { DashboardManageChannel } from '../pages/manage-page/index';
 import { Settings } from '../pages/settings';
 import { ManageMail } from '../pages/manage-mail/manage-mail';

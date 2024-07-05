@@ -1,6 +1,6 @@
 import { Button, Col, Form, Input, InputNumber, notification, Row } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FolderOpenOutlined, SaveOutlined } from '@ant-design/icons';
 import { ResponseElectron } from '../models/response';
 import { DataSettings } from '../models/settings';
@@ -99,6 +99,7 @@ export const Settings = () => {
                   max={10}
                   min={0}
                   className="w-full"
+                  disabled
                 />
               </Form.Item>
             </Col>
