@@ -210,6 +210,15 @@
       "./worker/**"
     ],
     "afterSign": ".erb/scripts/notarize.js",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "pikadragonelse",
+        "repo": "https://github.com/pikadragonelse/Crawl-youtube.git",
+        "releaseType": "prerelease",
+        "channel": "preview"
+      }
+    ],
     "mac": {
       "target": {
         "target": "default",
@@ -242,6 +251,10 @@
       "target": [
         "nsis"
       ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     },
     "linux": {
       "target": [
