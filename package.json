@@ -1,5 +1,6 @@
 {
   "description": "A foundation for scalable desktop apps",
+  "version": "v1.1.0",
   "keywords": [
     "electron",
     "boilerplate",
@@ -214,9 +215,7 @@
       {
         "provider": "github",
         "owner": "pikadragonelse",
-        "repo": "Crawl-youtube",
-        "releaseType": "prerelease",
-        "channel": "feat/auto-update"
+        "repo": "Crawl-youtube"
       }
     ],
     "mac": {
