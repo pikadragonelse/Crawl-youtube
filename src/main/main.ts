@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, Notification } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -23,14 +23,6 @@ import './settings';
 import './upload-video';
 import './mail-info';
 import './open-browser';
-
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
 
 let mainWindow: BrowserWindow | null = null;
 export let mainWindowId = 0;
@@ -119,8 +111,6 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-
-  // new AppUpdater();
 };
 
 /**
@@ -186,7 +176,54 @@ app
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
+      if (mainWindow === null) {
+        createWindow();
+
+        // Thông báo người dùng về việc kiểm tra cập nhật
+        new Notification({
+          title: 'Checking for Updates',
+          body: 'Ứng dụng đang kiểm tra bản cập nhật...',
+        }).show();
+
+        autoUpdater.checkForUpdatesAndNotify();
+      }
     });
+
+    // Thông báo người dùng về việc kiểm tra cập nhật
+    new Notification({
+      title: 'Checking for Updates',
+      body: 'Ứng dụng đang kiểm tra bản cập nhật...',
+    }).show();
+
+    autoUpdater.checkForUpdatesAndNotify();
   })
   .catch(console.log);
+
+autoUpdater.on('update-available', () => {
+  log.info('Update available.');
+  new Notification({
+    title: 'Update Available',
+    body: 'Có phiên bản mới, ứng dụng sẽ tự động tải và cài đặt.',
+  }).show();
+});
+
+autoUpdater.on('update-downloaded', () => {
+  log.info('Update downloaded.');
+  const notification = new Notification({
+    title: 'Update Ready',
+    body: 'Phiên bản mới đã sẵn sàng, ứng dụng sẽ khởi động lại để cài đặt bản cập nhật.',
+  });
+
+  notification.show();
+  notification.on('click', () => {
+    autoUpdater.quitAndInstall();
+  });
+});
+
+autoUpdater.on('error', (err) => {
+  log.error('Error in auto-updater. ' + err);
+  new Notification({
+    title: 'Update Error',
+    body: 'Có lỗi xảy ra trong quá trình cập nhật: ' + err.message,
+  }).show();
+});
