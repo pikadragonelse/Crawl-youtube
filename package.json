@@ -216,7 +216,7 @@
         "owner": "pikadragonelse",
         "repo": "https://github.com/pikadragonelse/Crawl-youtube.git",
         "releaseType": "prerelease",
-        "channel": "preview"
+        "channel": "feat/auto-update"
       }
     ],
     "mac": {
