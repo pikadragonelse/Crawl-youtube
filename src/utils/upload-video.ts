@@ -31,12 +31,26 @@ export const uploadVideo = async (
     await inputFile?.uploadFile(videoPath);
 
     await sleep(1000);
-    const titleInput = await page.waitForSelector(
-      'div[aria-label="Add a title that describes your video (type @ to mention a channel)"]',
-    );
+    const titleInput = await page
+      .waitForSelector(
+        'div[aria-label="Add a title that describes your video (type @ to mention a channel)"]',
+        { timeout: 20000 },
+      )
+      .catch(() => null);
 
-    await titleInput?.click({ clickCount: 3 });
-    await titleInput?.type(title, { delay: 100 });
+    if (titleInput != null) {
+      await titleInput?.click({ clickCount: 3 });
+      await titleInput?.type(title, { delay: 100 });
+    } else {
+      const titleInput = await page
+        .waitForSelector(
+          'div[aria-label="Add a title that describes your video"]',
+          { timeout: 20000 },
+        )
+        .catch(() => null);
+      await titleInput?.click({ clickCount: 3 });
+      await titleInput?.type(title, { delay: 100 });
+    }
 
     await sleep(1000);
     const linkVideo = await page.evaluate(() => {

@@ -1,6 +1,7 @@
 import {
   Button,
   Input,
+  message,
   Modal,
   notification,
   Row,
@@ -17,6 +18,7 @@ import {
   PlayCircleOutlined,
   EditOutlined,
   DeleteOutlined,
+  BlockOutlined,
 } from '@ant-design/icons';
 import { columns } from './constant';
 import { MailInfo } from '../../models/mail';
@@ -39,6 +41,16 @@ export const ManageMail = () => {
   const [api, contextHolder] = notification.useNotification();
   const [reloadData, setReloadData] = useState(0);
   const [resetUploadVideoForm, setResetUploadVideoForm] = useState(0);
+  const [listSelectedMail, setListSelectedMail] = useState<MailInfo[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>();
+  const [isMultipleUpload, setIsMultipleUpload] = useState(false);
+
+  const rowSelection = {
+    onChange: (selectedRowKeys: React.Key[], selectedRows: MailInfo[]) => {
+      setListSelectedMail(selectedRows);
+      setSelectedRowKeys(selectedRowKeys);
+    },
+  };
 
   const actionColumns: TableProps<MailInfo>['columns'] = [
     ...(columns as any),
@@ -118,9 +130,17 @@ export const ManageMail = () => {
       },
     );
 
+    const removeReloadListEvent = window.electron.ipcRenderer.on(
+      'reload-list-mail',
+      () => {
+        setReloadData((prev) => prev + 1);
+      },
+    );
+
     return () => {
       removeGetListMailEvent();
       removeDeleteMailEvent();
+      removeReloadListEvent();
     };
   }, []);
 
@@ -149,7 +169,6 @@ export const ManageMail = () => {
 
   useEffect(() => {
     setResetUploadVideoForm((prev) => prev + 1);
-    console.log(resetUploadVideoForm);
   }, [isOpenAddVideoChannelModal]);
 
   return (
@@ -186,7 +205,10 @@ export const ManageMail = () => {
       <Modal
         title="Thêm video vào kênh"
         open={isOpenAddVideoChannelModal}
-        onCancel={() => setIsOpenAddVideoChannelModal(false)}
+        onCancel={() => {
+          setIsOpenAddVideoChannelModal(false);
+          setIsMultipleUpload(false);
+        }}
         footer={<></>}
         className="w-[700px]"
       >
@@ -201,6 +223,8 @@ export const ManageMail = () => {
             setIsOpenAddVideoChannelModal(false);
           }}
           isReset={resetUploadVideoForm}
+          multipleUpload={isMultipleUpload}
+          listMail={listSelectedMail}
         />
       </Modal>
       <div className="w-fit mx-auto">
@@ -217,7 +241,22 @@ export const ManageMail = () => {
             enterButton
           />
         </div>
-        <div className="w-fit ml-auto">
+        <div className="w-fit ml-auto flex gap-2 items-center">
+          <Button
+            icon={<BlockOutlined className="text-lg" />}
+            onClick={() => {
+              if (listSelectedMail.length < 1) {
+                message.info(
+                  'Vui lòng chọn danh sách mail muốn tải video lên!',
+                );
+              } else {
+                setIsMultipleUpload(true);
+                setIsOpenAddVideoChannelModal(true);
+              }
+            }}
+          >
+            Up video nhiều mail
+          </Button>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -228,7 +267,14 @@ export const ManageMail = () => {
         </div>
       </div>
       <div className="">
-        <Table columns={actionColumns} dataSource={dataTable} />
+        <Table
+          columns={actionColumns}
+          dataSource={dataTable}
+          rowSelection={{
+            ...rowSelection,
+            selectedRowKeys,
+          }}
+        />
       </div>
     </div>
   );

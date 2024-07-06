@@ -14,13 +14,15 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import express from 'express';
+import { loadJSONFile } from '../utils/load-file';
+
 import './crawl-page';
 import './manage-page';
 import './settings';
 import './upload-video';
 import './mail-info';
-import express from 'express';
-import { loadJSONFile } from '../utils/load-file';
+import './open-browser';
 
 class AppUpdater {
   constructor() {

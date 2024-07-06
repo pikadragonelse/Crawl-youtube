@@ -20,7 +20,7 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
     // Login form
     await page.waitForSelector('input[name="identifier"]');
     await page.type('input[name="identifier"]', mail.mail, { delay: 100 });
-    await sleep(1000);
+    await sleep(5000);
     await page.evaluate(() => {
       const listButton = document.querySelectorAll(
         'div[data-primary-action-label="Next"] > div > div > div > div > button',
@@ -30,7 +30,7 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
       }
     });
 
-    await sleep(3000);
+    await sleep(8000);
     await page.waitForSelector('input[type="password"]');
     await page.type('input[type="password"]', mail.password, { delay: 100 });
     await sleep(2000);
@@ -56,7 +56,7 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
       await page.click('div[data-challengeid="5"]');
 
       await page.waitForSelector('input[type="email"]');
-      await sleep(2000);
+      await sleep(6000);
       await page.type('input[type="email"]', mail.recoverMail, { delay: 100 });
 
       await sleep(3000);

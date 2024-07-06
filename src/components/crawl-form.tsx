@@ -33,7 +33,9 @@ export const CrawlForm: React.FC<CrawlForm> = ({
         const listChannelInfo = res as ChannelInfo[];
         const channelInfoMap: Record<string, ChannelInfo> = {};
 
-        channelInfoMap[listChannelInfo[0].id] = listChannelInfo[0];
+        listChannelInfo.forEach((channel) => {
+          channelInfoMap[channel.id] = channel;
+        });
 
         setChannelInfoMap(channelInfoMap);
         setListChannelInfo(listChannelInfo);
@@ -88,10 +90,10 @@ export const CrawlForm: React.FC<CrawlForm> = ({
           channelInfoMap != null ? (
             <div className="flex gap-2 items-center py-2">
               <img
-                src={channelInfoMap[(option.value as any) || 0].avatar}
+                src={channelInfoMap[(option.value as any) || 0]?.avatar}
                 className="w-20 h-20 rounded-xl"
               />
-              <span>{channelInfoMap[(option.value as any) || 0].name}</span>
+              <span>{channelInfoMap[(option.value as any) || 0]?.name}</span>
             </div>
           ) : undefined
         }
