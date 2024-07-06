@@ -18,7 +18,9 @@ export type Channels =
   | 'get-list-mail'
   | 'add-multiple-mail'
   | 'delete-mail'
-  | 'get-link-video-mail';
+  | 'get-link-video-mail'
+  | 'open-external'
+  | 'reload-list-mail';
 
 const electronHandler = {
   ipcRenderer: {

@@ -13,12 +13,11 @@ import { baseUrl } from './manage-page';
 import { currentSettingsGlobal } from './settings';
 import { downloadImage, getVideosFromChannel } from './util/crawl-page-util';
 
-const listCrawling: Record<string, InfoVideo> = {};
-
 const downloadAllVideosFromChannel = async (
   event: IpcMainEvent,
   data: ArgCrawlData,
 ): Promise<void> => {
+  const listCrawling: Record<string, InfoVideo> = {};
   const { channelId, quantity } = data;
   const pool = workerpool.pool(
     path.join(path.resolve(), 'worker/crawl-worker.js'),

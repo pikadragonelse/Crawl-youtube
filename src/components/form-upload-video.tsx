@@ -19,7 +19,9 @@ import { UploadVideoArgs } from '../models/upload-video';
 import { convertToStringTime } from '../utils/stringifyTime';
 import copy from 'copy-to-clipboard';
 import { CopyOutlined } from '@ant-design/icons';
+
 const columns: TableProps<VideoInfo>['columns'] = [
+  { title: '#', dataIndex: 'key', width: 50 },
   {
     title: 'video',
     render: (_, record) => (
@@ -46,12 +48,16 @@ export type FormUploadVideo = {
   onDeny?: () => void;
   onSubmit?: (channelName: string) => void;
   isReset?: number;
+  multipleUpload?: boolean;
+  listMail?: MailInfo[];
 };
 export const FormUploadVideo: React.FC<FormUploadVideo> = ({
   mailInfo = defaultMailInfo,
   onDeny,
   onSubmit = () => {},
   isReset,
+  multipleUpload = false,
+  listMail = [],
 }) => {
   const [listChannelInfo, setListChannelInfo] = useState<ChannelInfo[]>([]);
   const [channelInfoMap, setChannelInfoMap] =
@@ -80,6 +86,8 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
       mail: mailInfo,
       type: 'byId',
       listVideoId: listSelectedVideo.map((video) => video.id),
+      multipleUpload: multipleUpload,
+      listMail: listMail,
     };
 
     window.electron.ipcRenderer.sendMessage('upload-video', args);
@@ -92,7 +100,9 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
       const listChannelInfo = res as ChannelInfo[];
       const channelInfoMap: Record<string, ChannelInfo> = {};
 
-      channelInfoMap[listChannelInfo[0].id] = listChannelInfo[0];
+      listChannelInfo.forEach((channel) => {
+        channelInfoMap[channel.id] = channel;
+      });
 
       setChannelInfoMap(channelInfoMap);
       setListChannelInfo(listChannelInfo);
@@ -149,8 +159,11 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
     setCurrentKey('1');
     setListSelectedVideo([]);
     setSelectedRowKeys([]);
-    console.log(isReset);
   }, [isReset]);
+
+  const openExternal = (url: string) => {
+    window.electron.ipcRenderer.sendMessage('open-external', url);
+  };
 
   return (
     <div className="">
@@ -174,12 +187,12 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
                         <div className="flex gap-2 items-center py-2">
                           <img
                             src={
-                              channelInfoMap[(option.value as any) || 0].avatar
+                              channelInfoMap[(option.value as any) || 0]?.avatar
                             }
                             className="w-20 h-20 rounded-xl"
                           />
                           <span>
-                            {channelInfoMap[(option.value as any) || 0].name}
+                            {channelInfoMap[(option.value as any) || 0]?.name}
                           </span>
                         </div>
                       ) : undefined
@@ -192,7 +205,12 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
                     })}
                   />
                   lên kênh youtube của{' '}
-                  <span className="text-red-600">{mailInfo?.mail}</span>?
+                  <span className="text-red-600">
+                    {multipleUpload !== true
+                      ? mailInfo?.mail
+                      : listMail.map((mail) => mail.mail).join(', ')}
+                  </span>
+                  ?
                   <Table
                     columns={columns}
                     dataSource={listVideo}
@@ -231,7 +249,14 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
                   bordered
                   renderItem={(item) => (
                     <List.Item>
-                      <span>{item}</span>{' '}
+                      <span
+                        onClick={() => {
+                          openExternal(item);
+                        }}
+                        className="text-blue-500 cursor-pointer"
+                      >
+                        {item}
+                      </span>{' '}
                       <Tooltip title="Sao chép">
                         <CopyOutlined
                           onClick={() => {
@@ -248,6 +273,7 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
                 />
               </div>
             ),
+            disabled: multipleUpload,
           },
         ]}
       />

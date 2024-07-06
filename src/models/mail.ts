@@ -3,11 +3,13 @@ export interface MailInfo {
   mail: string;
   password: string;
   recoverMail: string;
+  status: 'uploaded' | 'not upload';
 }
 
-export const defaultMailInfo = {
+export const defaultMailInfo: MailInfo = {
   key: 0,
   mail: '',
   password: '',
   recoverMail: '',
+  status: 'not upload',
 };
