@@ -214,7 +214,7 @@
       {
         "provider": "github",
         "owner": "pikadragonelse",
-        "repo": "https://github.com/pikadragonelse/Crawl-youtube.git",
+        "repo": "Crawl-youtube",
         "releaseType": "prerelease",
         "channel": "feat/auto-update"
       }
