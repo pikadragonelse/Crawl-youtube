@@ -27,6 +27,14 @@ import './open-browser';
 let mainWindow: BrowserWindow | null = null;
 export let mainWindowId = 0;
 
+autoUpdater.setFeedURL({
+  provider: 'github',
+  repo: 'Crawl-youtube',
+  owner: 'pikadragonelse',
+  private: true,
+  token: process.env.GH_TOKEN,
+});
+
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
@@ -218,6 +226,13 @@ autoUpdater.on('update-downloaded', () => {
   notification.on('click', () => {
     autoUpdater.quitAndInstall();
   });
+});
+
+autoUpdater.on('update-not-available', () => {
+  new Notification({
+    title: 'No Updates',
+    body: 'Đây là bản mới nhất!',
+  }).show();
 });
 
 autoUpdater.on('error', (err) => {

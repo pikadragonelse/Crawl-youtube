@@ -1,6 +1,6 @@
 {
   "description": "A foundation for scalable desktop apps",
-  "version": "v1.1.4",
+  "version": "v1.1.0",
   "keywords": [
     "electron",
     "boilerplate",
@@ -15,7 +15,7 @@
   "homepage": "https://github.com/electron-react-boilerplate/electron-react-boilerplate#readme",
   "license": "MIT",
   "author": {
-    "name": "Pikadragonelse"
+    "name": "pikadragonelse"
   },
   "main": "./src/main/main.ts",
   "scripts": {
