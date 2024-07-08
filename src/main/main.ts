@@ -223,9 +223,7 @@ autoUpdater.on('update-downloaded', () => {
   });
 
   notification.show();
-  notification.on('click', () => {
-    autoUpdater.quitAndInstall();
-  });
+  autoUpdater.quitAndInstall(false);
 });
 
 autoUpdater.on('update-not-available', () => {
