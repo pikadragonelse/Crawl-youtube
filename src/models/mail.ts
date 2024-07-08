@@ -3,7 +3,7 @@ export interface MailInfo {
   mail: string;
   password: string;
   recoverMail: string;
-  status: 'uploaded' | 'not upload';
+  status: 'uploaded' | 'not upload' | 'dead';
 }
 
 export const defaultMailInfo: MailInfo = {

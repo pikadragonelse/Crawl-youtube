@@ -30,6 +30,22 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
       }
     });
 
+    const iframeSelector = await page.waitForSelector(
+      'iframe[title="reCAPTCHA"]',
+    );
+    log.info(iframeSelector);
+    if (iframeSelector != null) {
+      const iframe = await iframeSelector.contentFrame();
+      const isDead = await iframe
+        .waitForSelector('div[id="rc-anchor-container"]', { timeout: 10000 })
+        .then(() => true)
+        .catch(() => false);
+
+      if (isDead === true) {
+        return 'mail dead';
+      }
+    }
+
     await sleep(8000);
     await page.waitForSelector('input[type="password"]');
     await page.type('input[type="password"]', mail.password, { delay: 100 });

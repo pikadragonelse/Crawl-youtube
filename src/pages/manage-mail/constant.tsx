@@ -4,6 +4,7 @@ import { MailInfo } from '../../models/mail';
 const statusMap: Record<string, React.ReactNode> = {
   uploaded: <Tag color="green">Đã tải video lên</Tag>,
   'not upload': <Tag>Chưa tải video lên</Tag>,
+  dead: <Tag color="red">Mail chết</Tag>,
 };
 
 export const columns: TableProps<MailInfo>['columns'] = [

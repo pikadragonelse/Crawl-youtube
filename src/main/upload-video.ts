@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { IpcMainEvent, ipcMain } from 'electron';
+import { IpcMainEvent, ipcMain, screen } from 'electron';
 import path from 'path';
 import { UploadVideoArgs } from '../models/upload-video';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
@@ -20,6 +20,7 @@ import { loadJSONFile } from '../utils/load-file';
 import { VideoInfo } from '../models/manage-page';
 import fs from 'fs';
 import { updateMailInfo } from './util/mail-info-utils';
+import { getNextPosition } from '../utils/window-position';
 
 const APP_DATA_PATH = execSync('echo %APPDATA%').toString().trim();
 
@@ -107,7 +108,7 @@ const runProcessUpload = async (
   });
 
   const page = await browser.newPage();
-  page.setViewport({ width: 900, height: 500 });
+  page.setViewport({ width: 900, height: 600 });
   page.setDefaultTimeout(120000);
   page.setDefaultNavigationTimeout(60000);
 
@@ -132,6 +133,7 @@ const runProcessUpload = async (
 
     try {
       await loginYoutube(page, mail);
+
       const listVideo = getVideoOfChannel(channelName);
 
       if (historyUploadOfMail[channelName] === listVideo?.length) {
@@ -163,7 +165,14 @@ const runProcessUpload = async (
     }
   } else {
     try {
-      await loginYoutube(page, mail);
+      const message = await loginYoutube(page, mail);
+      if (message === 'mail dead') {
+        await browser.close();
+        mail.status = 'dead';
+        updateMailInfo(mail);
+        event.reply('reload-list-mail');
+        return;
+      }
       const listVideo = getListVideoByListId(listVideoId, channelName);
 
       if (listVideo != null) {
@@ -191,6 +200,10 @@ const runProcessUpload = async (
 ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
   const { mail, channelName, type, listVideoId, multipleUpload, listMail } =
     args;
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.size;
+  let [x, y] = [0, 0];
+
   const rootPath = path.join(APP_DATA_PATH, 'Youtube-Profiles');
   if (!existsSync(rootPath)) {
     mkdirSync(rootPath);
@@ -213,10 +226,12 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
       if (existsSync(PROFILE_PATH)) {
         log.info('Exist profile: ');
 
+        [x, y] = getNextPosition(x, y, width, height);
         const profile: ProfileItem = {
           email: mail.mail,
           proxy: proxy,
           parsedProxy: parseProxyModel(proxy, 'http'),
+          position: `${x},${y}`,
         };
         if (type === 'byId') {
           await runProcessUpload(
@@ -246,6 +261,9 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
         if (profile != null) {
           profile.proxy = proxy;
           profile.parsedProxy = parseProxyModel(proxy, 'http');
+
+          [x, y] = getNextPosition(x, y, width, height);
+          profile.position = `${x},${y}`;
           if (type === 'byId') {
             await runProcessUpload(
               event,
@@ -270,8 +288,10 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
         }
       }
     } else {
-      log.info('Come here!!');
       let count = 0;
+      event.reply('upload-video', {
+        message: `Đợi 5s để bắt đầu!`,
+      });
       const timer = setInterval(async () => {
         if (listMail != null) {
           if (count < listMail.length) {
@@ -285,11 +305,13 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
 
             if (existsSync(PROFILE_PATH)) {
               log.info('Exist profile: ');
+              if (count > 1) [x, y] = getNextPosition(x, y, width, height);
 
               const profile: ProfileItem = {
                 email: mail.mail,
                 proxy: proxy,
                 parsedProxy: parseProxyModel(proxy, 'http'),
+                position: `${x},${y}`,
               };
               if (type === 'byId') {
                 await runProcessUpload(
@@ -315,10 +337,11 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
             } else {
               log.info('Dont exist profile: ');
               const profile = await createProfile(mail.mail);
-
+              if (count > 1) [x, y] = getNextPosition(x, y, width, height);
               if (profile != null) {
                 profile.proxy = proxy;
                 profile.parsedProxy = parseProxyModel(proxy, 'http');
+                profile.position = `${x},${y}`;
                 if (type === 'byId') {
                   await runProcessUpload(
                     event,
