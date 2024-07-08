@@ -27,13 +27,22 @@ import './open-browser';
 let mainWindow: BrowserWindow | null = null;
 export let mainWindowId = 0;
 
-autoUpdater.setFeedURL({
-  provider: 'github',
-  repo: 'Crawl-youtube',
-  owner: 'pikadragonelse',
-  private: true,
-  token: process.env.GH_TOKEN,
-});
+class AppUpdater {
+  constructor() {
+    log.transports.file.level = 'info';
+    autoUpdater.logger = log;
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.autoRunAppAfterInstall = true;
+    autoUpdater.setFeedURL({
+      provider: 'github',
+      repo: 'Crawl-youtube',
+      owner: 'pikadragonelse',
+      private: true,
+      token: process.env.GH_TOKEN,
+    });
+  }
+}
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -119,6 +128,7 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
+  new AppUpdater();
 };
 
 /**
@@ -213,6 +223,7 @@ autoUpdater.on('update-available', () => {
     title: 'Update Available',
     body: 'Có phiên bản mới, ứng dụng sẽ tự động tải và cài đặt.',
   }).show();
+  autoUpdater.downloadUpdate();
 });
 
 autoUpdater.on('update-downloaded', () => {
@@ -223,7 +234,7 @@ autoUpdater.on('update-downloaded', () => {
   });
 
   notification.show();
-  autoUpdater.quitAndInstall(false);
+  autoUpdater.quitAndInstall();
 });
 
 autoUpdater.on('update-not-available', () => {
