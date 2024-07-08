@@ -13,7 +13,7 @@ export const CrawlForm: React.FC<CrawlForm> = ({
   isDisable,
   onSubmit = () => {},
 }) => {
-  const [quantity, setQuantity] = useState(99999);
+  const [quantity, setQuantity] = useState(10);
   const [channelId, setChannelId] = useState('');
   const [typeDownload, setTypeDownload] = useState<'new' | 'exist'>('new');
   const [selectedChannelId, setSelectedChannelId] = useState('');
@@ -51,10 +51,10 @@ export const CrawlForm: React.FC<CrawlForm> = ({
         value={quantity}
         className="w-32"
         options={[
-          { label: 'Tất cả', value: 99999 },
           { label: '10', value: 10 },
           { label: '20', value: 20 },
           { label: '30', value: 30 },
+          { label: 'Tất cả', value: 99999 },
         ]}
         onChange={(value) => setQuantity(value)}
       />
