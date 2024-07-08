@@ -82,7 +82,7 @@ export const uploadVideo = async (
 
     await sleep(1000);
     await page.click(
-      'tp-yt-paper-radio-button[name="VIDEO_MADE_FOR_KIDS_MFK"] > div > div[id="offRadio"]',
+      'tp-yt-paper-radio-button[name="VIDEO_MADE_FOR_KIDS_NOT_MFK"] > div > div[id="offRadio"]',
     );
 
     await sleep(1000);
