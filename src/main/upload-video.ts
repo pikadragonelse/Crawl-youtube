@@ -288,8 +288,10 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
         }
       }
     } else {
-      log.info('Come here!!');
       let count = 0;
+      event.reply('upload-video', {
+        message: `Đợi 5s để bắt đầu!`,
+      });
       const timer = setInterval(async () => {
         if (listMail != null) {
           if (count < listMail.length) {
@@ -303,7 +305,7 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
 
             if (existsSync(PROFILE_PATH)) {
               log.info('Exist profile: ');
-              [x, y] = getNextPosition(x, y, width, height);
+              if (count > 1) [x, y] = getNextPosition(x, y, width, height);
 
               const profile: ProfileItem = {
                 email: mail.mail,
@@ -335,7 +337,7 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
             } else {
               log.info('Dont exist profile: ');
               const profile = await createProfile(mail.mail);
-              [x, y] = getNextPosition(x, y, width, height);
+              if (count > 1) [x, y] = getNextPosition(x, y, width, height);
               if (profile != null) {
                 profile.proxy = proxy;
                 profile.parsedProxy = parseProxyModel(proxy, 'http');
