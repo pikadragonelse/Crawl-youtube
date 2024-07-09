@@ -49,6 +49,16 @@ export const getVideosFromChannel = async (
   let videos: Video[] = [];
   let nextPageToken: string | undefined = undefined;
   let countDownloadedVideo = 0;
+  const { folderPath } = currentSettingsGlobal;
+  const channelsPath = path.join(
+    folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
+    'channels',
+  );
+  const channelPath = path.join(channelsPath, channelItem.snippet?.title || '');
+  const videosPath = path.join(channelPath, 'videos');
+  const existVideoIds = fs.existsSync(videosPath)
+    ? fs.readdirSync(videosPath)
+    : null;
 
   while (true) {
     const playlistResponse: any = await youtube.playlistItems.list({
@@ -77,6 +87,10 @@ export const getVideosFromChannel = async (
       const thumbnails = item.snippet?.thumbnails;
 
       if (!videoId || !duration || !title) continue;
+
+      if (existVideoIds != null) {
+        if (existVideoIds.includes(videoId)) continue;
+      }
 
       const durationInSeconds = parseISO8601Duration(duration);
 

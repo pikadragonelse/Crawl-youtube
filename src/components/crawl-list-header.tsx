@@ -1,5 +1,5 @@
 import { Progress, Tag, TagProps } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LoadingOutlined } from '@ant-design/icons';
 import {
   CrawlChannelInfoResponse,
@@ -33,6 +33,12 @@ export const CrawlListHeader: React.FC<CrawlListHeader> = ({
   crawlStatusMap = {},
   crawlShowStatusMap = {},
 }) => {
+  const [processCount, setProcessCount] = useState(0);
+
+  useEffect(() => {
+    setProcessCount(listState.done + listState.error);
+  }, [listState.done, listState.error]);
+
   return (
     <div className="flex gap-4">
       {listStatus.map((status, index) => (
@@ -42,7 +48,7 @@ export const CrawlListHeader: React.FC<CrawlListHeader> = ({
       ))}
       <div className="flex gap-2 items-center ml-auto">
         {listInfoVideo.length > 0 ? (
-          listState['done'] === channelInfo?.totalVideo ? (
+          processCount === channelInfo?.totalVideo ? (
             <span>Xong</span>
           ) : (
             <LoadingOutlined />
@@ -51,10 +57,7 @@ export const CrawlListHeader: React.FC<CrawlListHeader> = ({
         <Progress
           type="circle"
           percent={Number(
-            (
-              ((listState['done'] || 0) / (channelInfo?.totalVideo || 1)) *
-              100
-            ).toFixed(),
+            ((processCount / (channelInfo?.totalVideo || 1)) * 100).toFixed(),
           )}
           size={20}
           strokeLinecap="butt"
