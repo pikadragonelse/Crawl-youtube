@@ -30,10 +30,10 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
       }
     });
 
-    const iframeSelector = await page.waitForSelector(
-      'iframe[title="reCAPTCHA"]',
-    );
-    log.info(iframeSelector);
+    const iframeSelector = await page
+      .waitForSelector('iframe[title="reCAPTCHA"]', { timeout: 10000 })
+      .catch(() => null);
+
     if (iframeSelector != null) {
       const iframe = await iframeSelector.contentFrame();
       const isDead = await iframe
@@ -46,7 +46,7 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
       }
     }
 
-    await sleep(8000);
+    await sleep(5000);
     await page.waitForSelector('input[type="password"]');
     await page.type('input[type="password"]', mail.password, { delay: 100 });
     await sleep(2000);
