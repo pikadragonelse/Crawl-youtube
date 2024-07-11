@@ -16,7 +16,7 @@ export const uploadVideo = async (
     await page.goto('https://youtube.com/upload');
 
     const dontHaveChannel = await page
-      .waitForSelector('button[aria-label="Create channel"]', {
+      .waitForSelector('ytd-button-renderer[id="create-channel-button"]', {
         timeout: 10000,
       })
       .then(() => true)
@@ -24,13 +24,22 @@ export const uploadVideo = async (
 
     if (dontHaveChannel === true) {
       await sleep(1000);
-      await page.click('button[aria-label="Create channel"]');
+      await page.click('ytd-button-renderer[id="create-channel-button"]');
     }
 
     const inputFile = await page.waitForSelector('input[type="file"]');
     await inputFile?.uploadFile(videoPath);
 
     await sleep(1000);
+    const isVerify = await page
+      .waitForSelector('tp-yt-paper-dialog[id="dialog"]', { timeout: 10000 })
+      .then(() => true)
+      .catch(() => false);
+
+    if (isVerify === true) {
+      return 'mail dead';
+    }
+    await sleep(300000);
     const titleInput = await page
       .waitForSelector(
         'div[aria-label="Add a title that describes your video (type @ to mention a channel)"]',

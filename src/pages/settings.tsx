@@ -1,4 +1,13 @@
-import { Button, Col, Form, Input, InputNumber, notification, Row } from 'antd';
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  notification,
+  Row,
+  Select,
+} from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useEffect } from 'react';
 import { FolderOpenOutlined, SaveOutlined } from '@ant-design/icons';
@@ -16,7 +25,7 @@ export const Settings = () => {
       const dataSettings = res as DataSettings;
       form.setFieldsValue({
         folderPath: dataSettings.folderPath,
-        tmProxyKey: dataSettings.tmProxyKey,
+        proxy: dataSettings.proxy,
         quantityUpload: dataSettings.quantityUpload,
       });
     });
@@ -89,23 +98,31 @@ export const Settings = () => {
             </Col>
           </Row>
           <Row>
-            <Col span={6}>
+            <Col span={4}>
               <Form.Item<DataSettings>
-                name="quantityUpload"
-                label="Số lượng video mỗi lần upload"
+                name={['proxy', 'type']}
+                label="Nhà cung cấp proxy"
               >
-                <InputNumber
-                  placeholder="Nhập số lượng video (max = 10)"
-                  max={10}
-                  min={0}
-                  className="w-full"
-                  disabled
+                <Select
+                  options={[
+                    { label: 'IP2WORLD', value: 'ip2world' },
+                    { label: '360 Proxy', value: '360proxy' },
+                  ]}
                 />
               </Form.Item>
             </Col>
-            <Col span={15} offset={2}>
-              <Form.Item<DataSettings> name="tmProxyKey" label="TM proxy key">
-                <Input placeholder="Nhập TM proxy key" />
+            <Col span={17} offset={2}>
+              <Form.Item<DataSettings>
+                name={['proxy', 'link']}
+                label="Đường dẫn proxy"
+              >
+                <Input placeholder="Nhập đường dẫn" />
+              </Form.Item>
+              <Form.Item<DataSettings>
+                name={['proxy', 'password']}
+                label="Mật khẩu proxy"
+              >
+                <Input placeholder="Nhập mật khẩu" />
               </Form.Item>
             </Col>
           </Row>

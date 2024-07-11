@@ -5,8 +5,11 @@ const axios = require('axios');
 const workerpool = require('workerpool');
 
 const downloadVideo = (url, videoOutput, downloadOption) => {
+  console.log(url);
   return new Promise((resolve, reject) => {
-    const videoStream = ytdl(url, downloadOption);
+    const videoStream = ytdl(url, downloadOption).on('error', (error) => {
+      console.log('Download video error: ', error);
+    });
     const videoFile = fs.createWriteStream(videoOutput);
     videoStream.pipe(videoFile);
 
@@ -17,7 +20,9 @@ const downloadVideo = (url, videoOutput, downloadOption) => {
 
 const downloadAudio = (url, audioOutput, downloadOption) => {
   return new Promise((resolve, reject) => {
-    const audioStream = ytdl(url, downloadOption);
+    const audioStream = ytdl(url, downloadOption).on('error', (error) => {
+      console.log('Download audio error: ', error);
+    });
     const audioFile = fs.createWriteStream(audioOutput);
     audioStream.pipe(audioFile);
 
@@ -41,12 +46,15 @@ const downloadVideoFull = async (
         `Trying to download ${videoId} at quality ${JSON.stringify(quality)}`,
       );
 
+      console.log('URL: ', url);
+
       Promise.all([
         downloadVideo(url, videoOutputPath, quality),
         downloadAudio(url, audioOutputPath, qualityAudio),
       ])
         .then(() => {
           // Dùng ffmpeg để hợp nhất video và audio
+          console.log('Try to merge', videoId);
           ffmpeg()
             .input(videoOutputPath)
             .input(audioOutputPath)
