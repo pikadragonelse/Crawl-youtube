@@ -142,11 +142,15 @@ export async function fakeLocation(profile: ProfileItem, staticProxy = true) {
   let locationHost = 'http://ip-api.com/json';
   if (staticProxy && profile.parsedProxy) {
     const ip = await getIp(profile.parsedProxy);
-    locationHost = `http://ip-api.com/json/${ip}`;
+    if (ip != null) {
+      locationHost = `http://ip-api.com/json/${ip}`;
+    } else {
+      throw new Error('Cannot get id proxy');
+    }
   }
   let temp = await axios.get(locationHost);
   let location = temp.data;
-  log.info(location);
+  log.info('Location: ', location);
   preferences['gologin']['name'] = profile.email;
   if ('profile' in preferences) {
     preferences['profile']['name'] = profile.email;

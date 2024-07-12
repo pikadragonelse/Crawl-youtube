@@ -14,7 +14,7 @@ export interface CreateProfileInfo {
 export interface ProfileItem {
   key?: React.Key;
   proxy: string;
-  parsedProxy?: Proxy | null;
+  parsedProxy: Proxy | null;
   email: string;
   process?: null | BrowserContext;
   proxyHost?: string;

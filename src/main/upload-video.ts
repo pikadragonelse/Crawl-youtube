@@ -8,7 +8,7 @@ import { ProfileItem } from '../models/profile';
 import puppeteer from 'puppeteer';
 import axios from 'axios';
 import { currentSettingsGlobal } from './settings';
-import { parseProxyModel } from '../utils/proxy';
+import { parseProxyModel, stringifyProxy } from '../utils/proxy';
 import log from 'electron-log';
 import { loginYoutube } from '../utils/login-youtube';
 import { uploadVideo } from '../utils/upload-video';
@@ -21,27 +21,28 @@ import { VideoInfo } from '../models/manage-page';
 import fs from 'fs';
 import { updateMailInfo } from './util/mail-info-utils';
 import { getNextPosition } from '../utils/window-position';
+import { generateString } from '../utils/generate-string';
 
 const APP_DATA_PATH = execSync('echo %APPDATA%').toString().trim();
 
-export const getProxy: () => Promise<ResGetTMProxy> = async () => {
-  try {
-    let resp = await axios.post(
-      `https://tmproxy.com/api/proxy/get-new-proxy`,
-      {
-        api_key: currentSettingsGlobal.tmProxyKey,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
+export const getProxy: (
+  typeProxy: 'ip2world' | '360proxy',
+) => string | undefined = (typeProxy) => {
+  log.info(
+    currentSettingsGlobal.proxy.link,
+    currentSettingsGlobal.proxy.password,
+  );
 
-    return resp.data;
-  } catch (e) {
-    log.info(e);
-    return undefined;
+  switch (typeProxy) {
+    case 'ip2world': {
+      return `${currentSettingsGlobal.proxy.link}-${generateString(12)}-sessTime-60:${currentSettingsGlobal.proxy.password}`;
+    }
+    case '360proxy': {
+      return `${currentSettingsGlobal.proxy.link}-${generateString(8)}-sessTime-60:${currentSettingsGlobal.proxy.password}`;
+    }
+    default: {
+      return undefined;
+    }
   }
 };
 
@@ -91,26 +92,40 @@ const runProcessUpload = async (
   type: 'byId' | 'full' = 'full',
   listVideoId: string[] = [],
 ) => {
-  await fakeLocation(profile, true);
+  log.info('Profile info: ', profile);
+
+  try {
+    await fakeLocation(profile, true);
+  } catch (error) {
+    log.error('Fake location error: ', error);
+    event.reply('upload-video', {
+      message: `Thử lại sau vài giây, nếu không được vui lòng kiểm tra lại thông tin proxy và thử lại!`,
+    });
+    return;
+  }
 
   const browser = await puppeteer.launch({
     userDataDir: profilePath,
     args: [
+      '--no-sandbox',
       `--window-size=900,800`,
       `--window-position=${profile.position}`,
-      `--proxy-server=http://${profile.proxy}`,
+      `--proxy-server=http://${profile.parsedProxy != null ? profile.parsedProxy.ip : ''}:${profile.parsedProxy != null ? profile.parsedProxy.port : ''}`,
       `--load-extension=${pathToExtension}`,
     ],
     headless: false,
-    ignoreDefaultArgs: ['--enable-automation'],
     ignoreHTTPSErrors: true,
     executablePath: `${path.join(path.resolve(), 'Data/Chrome/chrome.exe')}`,
   });
 
   const page = await browser.newPage();
+  await page.authenticate({
+    username: profile.parsedProxy?.username || '',
+    password: profile.parsedProxy?.password || '',
+  });
   page.setViewport({ width: 900, height: 600 });
   page.setDefaultTimeout(120000);
-  page.setDefaultNavigationTimeout(60000);
+  page.setDefaultNavigationTimeout(120000);
 
   if (type !== 'byId') {
     const dataFilePath = path.join(
@@ -183,7 +198,19 @@ const runProcessUpload = async (
             return;
           }
           const video = listVideo[index];
-          await uploadVideo(page, video.videoPath, video.title, mail.mail);
+          const message = await uploadVideo(
+            page,
+            video.videoPath,
+            video.title,
+            mail.mail,
+          );
+          // if (message === 'mail dead') {
+          //   await browser.close();
+          //   mail.status = 'dead';
+          //   updateMailInfo(mail);
+          //   event.reply('reload-list-mail');
+          //   return;
+          // }
           await sleep(5000);
         }
       }
@@ -216,12 +243,12 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
     path.resolve(),
     'Data/Extension/always_active',
   );
+  let proxyKey = getProxy(currentSettingsGlobal.proxy.type);
+  console.log(proxyKey);
 
-  let response = await getProxy();
-
-  if (response.data.https !== '') {
+  if (proxyKey != null) {
     if (multipleUpload !== true) {
-      const proxy = response.data.https;
+      const proxy = proxyKey;
 
       if (existsSync(PROFILE_PATH)) {
         log.info('Exist profile: ');
@@ -301,7 +328,7 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
               APP_DATA_PATH,
               'Youtube-Profiles/' + mail.mail,
             );
-            const proxy = response.data.https;
+            const proxy = proxyKey;
 
             if (existsSync(PROFILE_PATH)) {
               log.info('Exist profile: ');
@@ -375,7 +402,7 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
     }
   } else {
     event.reply('upload-video', {
-      message: `Thử lại sau ${response.message.split(' ')[2]} giây để lấy proxy mới!`,
+      message: `Thông tin proxy không đúng, vui lòng kiểm tra và thử lại!`,
     });
   }
 });
