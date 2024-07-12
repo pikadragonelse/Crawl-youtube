@@ -44,7 +44,7 @@ export const Sidebar = () => {
     <div className="h-full w-64 border-r">
       <div className="w-32 pt-24 pb-16 mx-auto">
         <img src={logo} alt="" className="w-full h-full" />
-        <h2 className="font-medium w-fit mx-auto text-sm">Version 2.0.0</h2>
+        <h2 className="font-medium w-fit mx-auto text-sm">Version 2.0.1</h2>
       </div>
       <ul className="">
         {listSidebarItem.map((item, index) => (
