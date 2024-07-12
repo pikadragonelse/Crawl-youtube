@@ -105,5 +105,7 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
         }
       });
     }
+
+    await sleep(10000);
   }
 };
