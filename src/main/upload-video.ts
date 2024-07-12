@@ -99,7 +99,7 @@ const runProcessUpload = async (
   } catch (error) {
     log.error('Fake location error: ', error);
     event.reply('upload-video', {
-      message: `Thông tin proxy không đúng hoặc proxy hết hạn, vui lòng kiểm tra và thử lại!`,
+      message: `Thử lại sau vài giây, nếu không được vui lòng kiểm tra lại thông tin proxy và thử lại!`,
     });
     return;
   }
@@ -107,13 +107,13 @@ const runProcessUpload = async (
   const browser = await puppeteer.launch({
     userDataDir: profilePath,
     args: [
+      '--no-sandbox',
       `--window-size=900,800`,
       `--window-position=${profile.position}`,
       `--proxy-server=http://${profile.parsedProxy != null ? profile.parsedProxy.ip : ''}:${profile.parsedProxy != null ? profile.parsedProxy.port : ''}`,
       `--load-extension=${pathToExtension}`,
     ],
     headless: false,
-    ignoreDefaultArgs: ['--enable-automation'],
     ignoreHTTPSErrors: true,
     executablePath: `${path.join(path.resolve(), 'Data/Chrome/chrome.exe')}`,
   });
@@ -125,7 +125,7 @@ const runProcessUpload = async (
   });
   page.setViewport({ width: 900, height: 600 });
   page.setDefaultTimeout(120000);
-  page.setDefaultNavigationTimeout(60000);
+  page.setDefaultNavigationTimeout(120000);
 
   if (type !== 'byId') {
     const dataFilePath = path.join(
@@ -204,13 +204,13 @@ const runProcessUpload = async (
             video.title,
             mail.mail,
           );
-          if (message === 'mail dead') {
-            await browser.close();
-            mail.status = 'dead';
-            updateMailInfo(mail);
-            event.reply('reload-list-mail');
-            return;
-          }
+          // if (message === 'mail dead') {
+          //   await browser.close();
+          //   mail.status = 'dead';
+          //   updateMailInfo(mail);
+          //   event.reply('reload-list-mail');
+          //   return;
+          // }
           await sleep(5000);
         }
       }

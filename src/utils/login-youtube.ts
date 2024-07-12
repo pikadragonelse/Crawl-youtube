@@ -46,7 +46,7 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
       }
     }
 
-    await sleep(5000);
+    await sleep(15000);
     await page.waitForSelector('input[type="password"]');
     await page.type('input[type="password"]', mail.password, { delay: 100 });
     await sleep(2000);
@@ -69,7 +69,7 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
 
     if (isConfirmChallenge === true) {
       await sleep(2000);
-      await page.click('div[data-challengeid="5"]');
+      await page.click('div[data-challengetype="12"]');
 
       await page.waitForSelector('input[type="email"]');
       await sleep(6000);
