@@ -6,7 +6,6 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { createProfile, fakeLocation } from '../utils/profile';
 import { ProfileItem } from '../models/profile';
 import puppeteer from 'puppeteer';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 import axios from 'axios';
 import { currentSettingsGlobal } from './settings';
@@ -17,7 +16,6 @@ import { uploadVideo } from '../utils/upload-video';
 import { getVideoOfChannel } from './manage-page';
 import { sleep } from './util';
 import { MailInfo } from '../models/mail';
-import { ResGetTMProxy } from '../models/proxy';
 import { loadJSONFile } from '../utils/load-file';
 import { VideoInfo } from '../models/manage-page';
 import fs from 'fs';
