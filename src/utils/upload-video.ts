@@ -91,8 +91,8 @@ export const uploadVideo = async (
       await page.click('ytcp-button[id="next-button"]');
 
       await sleep(5000);
-
       await page.waitForSelector('ytcp-button[id="next-button"]');
+      await sleep(10000);
       await page.click('ytcp-button[id="next-button"]');
 
       // const isAbandoned = await page.waitForSelector(

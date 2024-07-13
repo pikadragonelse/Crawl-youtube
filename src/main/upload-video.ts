@@ -435,6 +435,7 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
       11: 'TMProxy Key không tồn tại!',
       14: 'Vui lòng nhập TMProxy key',
       5: `Thử lại sau ${messageTMProxy.split(' ')[2]} giây để lấy proxy mới!`,
+      6: 'Gói TMProxy hết hạn, vui lòng gia hạn gói!',
     };
     event.reply('upload-video', {
       message:
