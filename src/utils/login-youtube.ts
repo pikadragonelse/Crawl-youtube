@@ -30,6 +30,15 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
       }
     });
 
+    const isRecoverAccount = await page
+      .waitForSelector('div[id="accountRecoveryButton"]', { timeout: 10000 })
+      .then(() => true)
+      .catch(() => false);
+
+    if (isRecoverAccount === true) {
+      return 'mail dead';
+    }
+
     const iframeSelector = await page
       .waitForSelector('iframe[title="reCAPTCHA"]', { timeout: 10000 })
       .catch(() => null);
@@ -90,7 +99,7 @@ export const loginYoutube = async (page: Page, mail: MailInfo) => {
     const isSimplify = await page
       .waitForSelector(
         'div[data-primary-action-label="Continue"] > div > div > div > div > button',
-        { timeout: 10000 },
+        { timeout: 20000 },
       )
       .then(() => true)
       .catch(() => false);

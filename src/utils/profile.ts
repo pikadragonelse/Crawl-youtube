@@ -15,6 +15,7 @@ import {
 } from '../models/profile';
 import axios from 'axios';
 import { getIp } from './proxy';
+import { sleep } from '../main/util';
 
 const APP_DATA_PATH = execSync('echo %APPDATA%').toString().trim();
 
@@ -116,6 +117,7 @@ export async function createProfile(email: string) {
       ),
       base_preference,
     );
+    // await sleep(300000);
   } catch (error) {
     log.info('write file sync error');
     log.info(error);
@@ -151,28 +153,38 @@ export async function fakeLocation(profile: ProfileItem, staticProxy = true) {
   let temp = await axios.get(locationHost);
   let location = temp.data;
   log.info('Location: ', location);
-  preferences['gologin']['name'] = profile.email;
-  if ('profile' in preferences) {
-    preferences['profile']['name'] = profile.email;
+  try {
+    preferences['autocomplete']['retention_policy_last_version'] = 120;
+    preferences['extensions']['last_chrome_version'] = '120.0.6099.110';
+    if (!('gologin' in preferences)) {
+      await createProfile(profile.email);
+    }
+    preferences['gologin']['navigator']['platform'] = 'Win32';
+    preferences['gologin']['userAgent'] =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36';
+
+    preferences['gologin']['timezone']['id'] = location.timezone;
+    preferences['gologin']['geoLocation']['latitude'] =
+      location.lat + getRandomFloat(0.0001, 0.001, 4);
+    preferences['gologin']['geoLocation']['longitude'] =
+      location.lon + getRandomFloat(0.0001, 0.001, 4);
+    preferences['gologin']['languages'] = 'en-US,en';
+    if ('webRtc' in preferences['gologin']) {
+      preferences['gologin']['webRtc']['enable'] = 'disabled';
+    }
+    if ('webrtc' in preferences['gologin']) {
+      preferences['gologin']['webrtc']['mode'] = 'disabled';
+    }
+    if (profile.proxyHost && profile.proxyUser) {
+      preferences['gologin']['proxy']['username'] = profile.proxyUser;
+      preferences['gologin']['proxy']['password'] = profile.proxyPass;
+    }
+    preferences = JSON.stringify(preferences, null, 4); // Indented 4 spaces
+    writeFileSync(preference_path, preferences);
+  } catch (error) {
+    console.log(error);
+    log.error('Profiles utils > Fake location error: ', error);
   }
-  preferences['gologin']['timezone']['id'] = location.timezone;
-  preferences['gologin']['geoLocation']['latitude'] =
-    location.lat + getRandomFloat(0.0001, 0.001, 4);
-  preferences['gologin']['geoLocation']['longitude'] =
-    location.lon + getRandomFloat(0.0001, 0.001, 4);
-  // if (profile.parsedProxy && profile.parsedProxy.username) {
-  //   preferences['gologin']['proxy']['username'] = profile.parsedProxy?.username;
-  //   preferences['gologin']['proxy']['password'] = profile.parsedProxy?.password;
-  // }
-  // preferences["autocomplete"]["retention_policy_last_version"] = 121;
-  // if ("extensions" in preferences) {
-  //   preferences["extensions"]["last_chrome_version"] = "121.0.6167.85";
-  // }
-  // preferences["gologin"]["navigator"]["platform"] = "Win32";
-  // preferences["gologin"]["userAgent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.85 Safari/537.36";
-  preferences['gologin']['webRtc']['mode'] = 'disabled';
-  preferences = JSON.stringify(preferences, null, 4); // Indented 4 spaces
-  writeFileSync(preference_path, preferences);
 }
 
 export function getRandomFloat(min: number, max: number, decimals: any) {
