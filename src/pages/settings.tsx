@@ -97,35 +97,32 @@ export const Settings = () => {
               </Button>
             </Col>
           </Row>
-          <Row>
-            <Col span={4}>
-              <Form.Item<DataSettings>
-                name={['proxy', 'type']}
-                label="Nhà cung cấp proxy"
-              >
-                <Select
-                  options={[
-                    { label: 'IP2WORLD', value: 'ip2world' },
-                    { label: '360 Proxy', value: '360proxy' },
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={17} offset={2}>
-              <Form.Item<DataSettings>
-                name={['proxy', 'link']}
-                label="Đường dẫn proxy"
-              >
-                <Input placeholder="Nhập đường dẫn" />
-              </Form.Item>
-              <Form.Item<DataSettings>
-                name={['proxy', 'password']}
-                label="Mật khẩu proxy"
-              >
-                <Input placeholder="Nhập mật khẩu" />
-              </Form.Item>
-            </Col>
-          </Row>
+          <Form.Item<DataSettings>
+            name={['proxy', 'type']}
+            label="Nhà cung cấp proxy"
+          >
+            <Select
+              options={[
+                { label: 'IP2WORLD', value: 'ip2world' },
+                { label: 'TM Proxy', value: 'tmproxy' },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item<DataSettings> name={['proxy', 'key']} label="Proxy key">
+            <Input placeholder="Nhập key" />
+          </Form.Item>
+          <Form.Item<DataSettings>
+            name={['proxy', 'link']}
+            label="Đường dẫn proxy"
+          >
+            <Input placeholder="Nhập đường dẫn" />
+          </Form.Item>
+          <Form.Item<DataSettings>
+            name={['proxy', 'password']}
+            label="Mật khẩu proxy"
+          >
+            <Input placeholder="Nhập mật khẩu" />
+          </Form.Item>
 
           <Row justify={'end'}>
             <Form.Item>

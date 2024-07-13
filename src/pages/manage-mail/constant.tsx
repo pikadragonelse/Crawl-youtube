@@ -5,6 +5,7 @@ const statusMap: Record<string, React.ReactNode> = {
   uploaded: <Tag color="green">Đã tải video lên</Tag>,
   'not upload': <Tag>Chưa tải video lên</Tag>,
   dead: <Tag color="red">Mail chết</Tag>,
+  errorUploading: <Tag color="red">Có video bị chặn</Tag>,
 };
 
 export const columns: TableProps<MailInfo>['columns'] = [

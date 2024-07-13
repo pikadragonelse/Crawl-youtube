@@ -57,6 +57,7 @@ export const FormImportMail: React.FC<FormImportMail> = ({
                   mail: row[0],
                   password: row[1],
                   recoverMail: row[2],
+                  status: 'not upload',
                 };
                 dataTable.push(mailInfo);
               }

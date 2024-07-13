@@ -6,6 +6,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { createProfile, fakeLocation } from '../utils/profile';
 import { ProfileItem } from '../models/profile';
 import puppeteer from 'puppeteer';
+
 import axios from 'axios';
 import { currentSettingsGlobal } from './settings';
 import { parseProxyModel, stringifyProxy } from '../utils/proxy';
@@ -15,7 +16,6 @@ import { uploadVideo } from '../utils/upload-video';
 import { getVideoOfChannel } from './manage-page';
 import { sleep } from './util';
 import { MailInfo } from '../models/mail';
-import { ResGetTMProxy } from '../models/proxy';
 import { loadJSONFile } from '../utils/load-file';
 import { VideoInfo } from '../models/manage-page';
 import fs from 'fs';
@@ -24,10 +24,13 @@ import { getNextPosition } from '../utils/window-position';
 import { generateString } from '../utils/generate-string';
 
 const APP_DATA_PATH = execSync('echo %APPDATA%').toString().trim();
+// puppeteer.use(StealthPlugin());
+let messageTMProxy = '';
+let codeResTMproxy = 0;
 
 export const getProxy: (
-  typeProxy: 'ip2world' | '360proxy',
-) => string | undefined = (typeProxy) => {
+  typeProxy: 'ip2world' | 'tmproxy',
+) => Promise<string | undefined> = async (typeProxy) => {
   log.info(
     currentSettingsGlobal.proxy.link,
     currentSettingsGlobal.proxy.password,
@@ -37,8 +40,30 @@ export const getProxy: (
     case 'ip2world': {
       return `${currentSettingsGlobal.proxy.link}-${generateString(12)}-sessTime-60:${currentSettingsGlobal.proxy.password}`;
     }
-    case '360proxy': {
-      return `${currentSettingsGlobal.proxy.link}-${generateString(8)}-sessTime-60:${currentSettingsGlobal.proxy.password}`;
+    case 'tmproxy': {
+      const runGet = async () => {
+        try {
+          let resp = await axios.post(
+            `https://tmproxy.com/api/proxy/get-new-proxy`,
+            {
+              api_key: currentSettingsGlobal.proxy.key,
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          );
+          messageTMProxy = resp.data.message;
+          codeResTMproxy = resp.data.code;
+
+          return resp.data.data.https;
+        } catch (e) {
+          log.info(e);
+          return undefined;
+        }
+      };
+      return await runGet();
     }
     default: {
       return undefined;
@@ -107,18 +132,19 @@ const runProcessUpload = async (
   const browser = await puppeteer.launch({
     userDataDir: profilePath,
     args: [
-      '--no-sandbox',
       `--window-size=900,800`,
       `--window-position=${profile.position}`,
       `--proxy-server=http://${profile.parsedProxy != null ? profile.parsedProxy.ip : ''}:${profile.parsedProxy != null ? profile.parsedProxy.port : ''}`,
       `--load-extension=${pathToExtension}`,
     ],
+    ignoreDefaultArgs: ['--enable-automation'],
     headless: false,
     ignoreHTTPSErrors: true,
     executablePath: `${path.join(path.resolve(), 'Data/Chrome/chrome.exe')}`,
   });
 
   const page = await browser.newPage();
+
   await page.authenticate({
     username: profile.parsedProxy?.username || '',
     password: profile.parsedProxy?.password || '',
@@ -204,13 +230,19 @@ const runProcessUpload = async (
             video.title,
             mail.mail,
           );
-          // if (message === 'mail dead') {
-          //   await browser.close();
-          //   mail.status = 'dead';
-          //   updateMailInfo(mail);
-          //   event.reply('reload-list-mail');
-          //   return;
-          // }
+          if (message === 'mail dead') {
+            await browser.close();
+            mail.status = 'dead';
+            updateMailInfo(mail);
+            event.reply('reload-list-mail');
+            return;
+          } else if (message === 'unclickable') {
+            await browser.close();
+            mail.status = 'errorUploading';
+            updateMailInfo(mail);
+            event.reply('reload-list-mail');
+            return;
+          }
           await sleep(5000);
         }
       }
@@ -243,10 +275,8 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
     path.resolve(),
     'Data/Extension/always_active',
   );
-  let proxyKey = getProxy(currentSettingsGlobal.proxy.type);
-  console.log(proxyKey);
-
-  if (proxyKey != null) {
+  let proxyKey = await getProxy(currentSettingsGlobal.proxy.type);
+  if (proxyKey != null && proxyKey != '') {
     if (multipleUpload !== true) {
       const proxy = proxyKey;
 
@@ -401,8 +431,16 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
       }, 5000);
     }
   } else {
+    const messageTMProxyErrorMap: Record<number, string> = {
+      11: 'TMProxy Key không tồn tại!',
+      14: 'Vui lòng nhập TMProxy key',
+      5: `Thử lại sau ${messageTMProxy.split(' ')[2]} giây để lấy proxy mới!`,
+    };
     event.reply('upload-video', {
-      message: `Thông tin proxy không đúng, vui lòng kiểm tra và thử lại!`,
+      message:
+        currentSettingsGlobal.proxy.type !== 'tmproxy'
+          ? `Thông tin proxy không đúng, vui lòng kiểm tra và thử lại!`
+          : messageTMProxyErrorMap[codeResTMproxy],
     });
   }
 });
