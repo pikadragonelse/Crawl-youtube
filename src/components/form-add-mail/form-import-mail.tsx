@@ -1,7 +1,7 @@
 import { Button, message } from 'antd';
 import { DownloadOutlined, PlusOutlined } from '@ant-design/icons';
 import { downloadExampleTxtFileUrl } from '../../utils/create-file';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MailInfo } from '../../models/mail';
 
 export type FormImportMail = { onUploadedFile?: (data: MailInfo[]) => void };
@@ -9,6 +9,7 @@ export const FormImportMail: React.FC<FormImportMail> = ({
   onUploadedFile = () => {},
 }) => {
   const inputFileTxtRef = useRef<HTMLInputElement>(null);
+  const [dataTable, setDataTable] = useState<MailInfo[]>([]);
 
   const triggerUploadTxt = () => {
     if (inputFileTxtRef && inputFileTxtRef.current) {
@@ -62,13 +63,11 @@ export const FormImportMail: React.FC<FormImportMail> = ({
                 dataTable.push(mailInfo);
               }
             });
+            setDataTable(dataTable);
             window.electron.ipcRenderer.sendMessage(
               'add-multiple-mail',
               dataTable,
             );
-            onUploadedFile(dataTable);
-            message.success(`Thêm thành công ${dataTable.length} mail!`);
-            clearDataInput();
           }
         } else {
           clearDataInput();
@@ -77,6 +76,21 @@ export const FormImportMail: React.FC<FormImportMail> = ({
       reader.readAsBinaryString(fileData);
     }
   };
+
+  useEffect(() => {
+    const removeAddMultipleMailEvent = window.electron.ipcRenderer.on(
+      'add-multiple-mail',
+      (res) => {
+        onUploadedFile(dataTable);
+        message.success(`Thêm thành công ${dataTable.length} mail!`);
+        clearDataInput();
+      },
+    );
+
+    return () => {
+      removeAddMultipleMailEvent();
+    };
+  }, [dataTable]);
 
   return (
     <div>

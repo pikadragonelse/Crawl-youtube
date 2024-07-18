@@ -196,7 +196,7 @@ const runProcessUpload = async (
             return;
           }
           const video = listVideo[historyUploadOfMail[channelName]];
-          await uploadVideo(page, video.videoPath, video.title, channelName);
+          await uploadVideo(page, video.videoPath, video.title);
           await sleep(5000);
         }
       }
@@ -215,7 +215,7 @@ const runProcessUpload = async (
         return;
       }
       const listVideo = getListVideoByListId(listVideoId, channelName);
-
+      const listLinkVideo: string[] = [];
       if (listVideo != null) {
         for (let index = 0; index < listVideo.length; index++) {
           if (index === listVideo?.length) {
@@ -224,12 +224,7 @@ const runProcessUpload = async (
             return;
           }
           const video = listVideo[index];
-          const message = await uploadVideo(
-            page,
-            video.videoPath,
-            video.title,
-            mail.mail,
-          );
+          const message = await uploadVideo(page, video.videoPath, video.title);
           if (message === 'mail dead') {
             await browser.close();
             mail.status = 'dead';
@@ -242,12 +237,16 @@ const runProcessUpload = async (
             updateMailInfo(mail);
             event.reply('reload-list-mail');
             return;
+          } else {
+            log.info(`Video ${video.title} đã được tải lên thành công`);
+            listLinkVideo.push(message || '');
           }
           await sleep(5000);
         }
       }
       await browser.close();
       mail.status = 'uploaded';
+      mail.video_links = listLinkVideo;
       updateMailInfo(mail);
       event.reply('reload-list-mail');
     } catch (error) {

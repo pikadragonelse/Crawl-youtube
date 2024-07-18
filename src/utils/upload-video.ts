@@ -1,15 +1,12 @@
 import { existsSync, writeFileSync } from 'fs';
 import { Page } from 'puppeteer';
 import { sleep } from '../main/util';
-import path from 'path';
-import { loadJSONFile } from './load-file';
-import log from 'electron-log';
+import { MailInfo } from '../models/mail';
 
 export const uploadVideo = async (
   page: Page,
   videoPath: string,
   title: string,
-  mail: string,
 ) => {
   if (existsSync(videoPath)) {
     try {
@@ -49,7 +46,7 @@ export const uploadVideo = async (
       await titleInput?.click({ clickCount: 3 });
       await titleInput?.type(title, { delay: 100 });
 
-      await sleep(1000);
+      await sleep(8000);
       const linkVideo = await page.evaluate(() => {
         const aElement = document.querySelector(
           "a[class='style-scope ytcp-video-info']",
@@ -58,24 +55,6 @@ export const uploadVideo = async (
           return aElement.getAttribute('href');
         }
       });
-
-      log.info(linkVideo);
-
-      if (linkVideo != null) {
-        const dataFilePath = path.join(
-          path.resolve(),
-          'Data-JSON/uploaded-channel.json',
-        );
-        let uploadedMap: Record<string, Array<string>> = loadJSONFile(
-          dataFilePath,
-        ) || {};
-        if (uploadedMap[mail] != null) {
-          uploadedMap[mail].push(linkVideo);
-        } else {
-          uploadedMap[mail] = [linkVideo];
-        }
-        writeFileSync(dataFilePath, JSON.stringify(uploadedMap, null, 2));
-      }
 
       await sleep(1000);
       await page.click(
@@ -92,7 +71,7 @@ export const uploadVideo = async (
 
       await sleep(5000);
       await page.waitForSelector('ytcp-button[id="next-button"]');
-      await sleep(10000);
+      await sleep(15000);
       await page.click('ytcp-button[id="next-button"]');
 
       // const isAbandoned = await page.waitForSelector(
@@ -112,6 +91,7 @@ export const uploadVideo = async (
       await sleep(1000);
       await page.click('ytcp-button[id="done-button"]');
       await sleep(20000);
+      return linkVideo;
     } catch (error: any) {
       if (
         error.message.includes('Node is either not clickable or not an Element')

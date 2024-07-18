@@ -1,0 +1,63 @@
+Hướng dẫn sử dụng phần mềm upload video lên kênh youtube
+
+Bước 1: Cài đặt ứng dụng:
+
+- Khởi động file .exe để cài đặt ứng dụng.
+- Sau khi cài đặt xong, mở ứng dụng lên, vào phần cài đặt.
+- Chọn nơi lưu video tải xuống
+- Chọn nhà cung cấp proxy muốn sử dụng để đăng video lên (Tốt nhất với TMProxy);
+- Nhập thông tin cần thiết cho proxy.
+- Proxy key: dùng cho TMProxy
+- Đường dẫn và mật khẩu proxy: dùng cho IP2World
+- Nhấn lưu cài đặt
+
+Bước 2: Tải video từ kênh về
+
+Lưu ý: Ứng dụng sẽ chỉ tải các video < 3 phút
+
+- Chọn số lượng video muốn tải
+- Chọn tải video từ kênh mới hoặc kênh có sẵn
+
+- Nếu là kênh mới:
+
+    + Lấy id kênh
+        - Lấy link của kênh youtube
+        - Vào trang web https://seostudio.tools/vi/youtube-channel-id để tiến hành lấy id kênh
+
+    + Nhập id kênh vào ô và bấm nút tải xuống
+    + Đợi cho ứng dụng tải xong trước khi làm bất cứ việc gì khác nếu không muốn ảnh hưởng đến quá trình tải
+
+- Nếu là kênh có sẵn:
+
+    + Chọn kênh muốn tải tiếp video
+    + Nhấn nút tải xuống và đợi cho ứng dụng tải xong trước khi làm bất cứ việc gì khác nếu không muốn ảnh hưởng đến quá trình tải
+
+Bước 3: Kiểm tra dữ liệu tải về:
+
+    - Các thông tin về kênh và video sẽ được thể hiện ở phần quản lý kênh, có thể vào để kiểm tra xem có đúng hay chưa
+
+Bước 4: Đăng video lên các kênh khác
+
+    - Vào phần Quản lý mail
+    - Nhấn nút thêm mail -> tải file mẫu về -> dán thông tin của các mail vào trong file mẫu
+    - Nhấn nút tải tệp.txt sau đó chọn file thông tin để thêm mail vào hệ thống
+    - Sẽ có 2 cách đăng video: đăng từng mail hoặc đăng nhiều mail. Số lượng lý tưởng cho đăng nhiều mail là 10 (tùy máy).
+    - Đăng từng mail:
+        + Chọn nút tải video lên ở phần tiện ích của mail đó -> chọn kênh và video của kênh muốn lấy video để tải lên -> nhấn nút xác nhận và đợi cho quá trình đăng tải video diễn ra.
+    
+    - Đăng nhiều mail:
+        + Chọn các mail muốn đăng video lên.
+        + Chọn nút Up video nhiều mail
+        + Chọn kênh và video của kênh muốn lấy video để tải lên -> nhấn nút xác nhận và đợi cho quá trình đăng tải video diễn ra.
+    
+    - Thông tin tình trạng của các mail sẽ được hiển thị ở phần trạng thái:
+        + Chưa tải video lên: Mail mới, chưa được tải video lên
+        + Đã tải video lên: Mail đã được tải video lên thành công (bất kể số lượng)
+        + Mail chết: Dính captcha login hoặc dính xác minh lúc đăng video
+        + Có video bị chặn: Trong quá trình đăng video, có video bị chặn nên quá trình tải bị dừng.
+
+Bước 5: Kiểm tra các video được đăng lên của kênh:
+
+    - Chủ yếu là kiểm tra thông tin của các mail có trạng thái "có video bị chặn"
+    - Chọn nút tải video lên ở phần tiện ích của mail -> chọn phần "Video hiện có trong ..." -> xem thử video bị chặn là video nào
+    - Thử upload lại video đó -> nếu không được tạm thời bỏ qua.
