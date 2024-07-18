@@ -4,9 +4,6 @@ import {
   message,
   Modal,
   notification,
-  Row,
-  Select,
-  Space,
   Table,
   TableProps,
   Tabs,
@@ -21,7 +18,7 @@ import {
   BlockOutlined,
 } from '@ant-design/icons';
 import { columns } from './constant';
-import { MailInfo } from '../../models/mail';
+import { MailInfo, ResGetMail } from '../../models/mail';
 import { FormImportMail } from '../../components/form-add-mail/form-import-mail';
 import { FormUploadVideo } from '../../components/form-upload-video';
 import { UploadVideoArgs } from '../../models/upload-video';
@@ -44,6 +41,10 @@ export const ManageMail = () => {
   const [listSelectedMail, setListSelectedMail] = useState<MailInfo[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>();
   const [isMultipleUpload, setIsMultipleUpload] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: MailInfo[]) => {
@@ -88,38 +89,40 @@ export const ManageMail = () => {
         setIsOpenAddVideoChannelModal(true);
       },
     },
-    {
-      icon: <EditOutlined className="text-yellow-600" />,
-      tooltip: 'Chỉnh sửa thông tin',
-      onClick: (record?: MailInfo) => {},
-    },
-    {
-      icon: <DeleteOutlined className="text-red-600" />,
-      tooltip: 'Xóa mail',
-      onClick: (record: MailInfo) => {
-        deleteMail(record);
-      },
-    },
+    // {
+    //   icon: <EditOutlined className="text-yellow-600" />,
+    //   tooltip: 'Chỉnh sửa thông tin',
+    //   onClick: (record?: MailInfo) => {},
+    // },
+    // {
+    //   icon: <DeleteOutlined className="text-red-600" />,
+    //   tooltip: 'Xóa mail',
+    //   onClick: (record: MailInfo) => {
+    //     deleteMail(record);
+    //   },
+    // },
   ];
 
-  const getListMail = () => {
-    window.electron.ipcRenderer.sendMessage('get-list-mail');
+  const getListMail = (currentPage: number, pageSize: number) => {
+    setIsLoading(true);
+    window.electron.ipcRenderer.sendMessage('get-list-mail', {
+      currentPage,
+      pageSize,
+    });
   };
 
   useEffect(() => {
-    getListMail();
-  }, [reloadData]);
+    getListMail(currentPage, pageSize);
+  }, [reloadData, currentPage, pageSize]);
 
   useEffect(() => {
     const removeGetListMailEvent = window.electron.ipcRenderer.on(
       'get-list-mail',
       (res) => {
-        const listMail = res as MailInfo[];
-        const finalList = listMail.map((mail, index) => {
-          mail.key = index + 1;
-          return mail;
-        });
-        setDataTable(finalList);
+        const response = res as ResGetMail;
+        setDataTable(response.mails);
+        setTotalPages(response.totalMails);
+        setIsLoading(false);
       },
     );
 
@@ -268,11 +271,25 @@ export const ManageMail = () => {
       </div>
       <div className="">
         <Table
+          loading={isLoading}
           columns={actionColumns}
           dataSource={dataTable}
           rowSelection={{
             ...rowSelection,
             selectedRowKeys,
+          }}
+          scroll={{ y: 450 }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalPages,
+            showSizeChanger: true,
+            showTotal: (total, range) =>
+              `Hiển thị ${range[0]} - ${range[1]} của ${total} mails`,
+            onChange: (page, pageSize) => {
+              setCurrentPage(page);
+              setPageSize(pageSize);
+            },
           }}
         />
       </div>
