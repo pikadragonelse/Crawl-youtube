@@ -44,7 +44,7 @@ ipcMain.on('add-multiple-mail', async (event, listMailInfo: MailInfo[]) => {
       address: mail.mail,
       password: mail.password,
       recover_mail: mail.recoverMail,
-      video_links: [''],
+      video_links: [],
     };
   });
 
