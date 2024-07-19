@@ -237,9 +237,9 @@ const runProcessUpload = async (
             updateMailInfo(mail);
             event.reply('reload-list-mail');
             return;
-          } else {
+          } else if (message != null && message !== '') {
             log.info(`Video ${video.title} đã được tải lên thành công`);
-            listLinkVideo.push(message || '');
+            listLinkVideo.push(message);
           }
           await sleep(5000);
         }
