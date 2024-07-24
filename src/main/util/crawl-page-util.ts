@@ -8,6 +8,7 @@ import { ChannelInfo, Video } from '../../models/crawl-page';
 import { currentSettingsGlobal } from '../settings';
 import path from 'path';
 import { parseISO8601Duration } from '../../utils/parseTime';
+import { apiInstance } from '../../plugin/apiInstance';
 
 // API Key từ biến môi trường
 const API_KEY = process.env.GOOGLE_API_KEY;
@@ -41,6 +42,7 @@ export const getVideosFromChannel = async (
 
   const channelInfo: ChannelInfo = {
     id: channelId,
+    idServer: 0,
     name: channelItem.snippet?.title || '',
     avatar: channelItem.snippet?.thumbnails?.high?.url || '',
     banner: channelItem.brandingSettings?.image?.bannerExternalUrl || '',
@@ -146,5 +148,16 @@ export const downloadImage = async (url: string, outputPath: string) => {
     });
   } catch (error) {
     log.error(`Error when download img from ${url}:`, error);
+  }
+};
+
+export const addChannel = async (name: string, channelIdYoutube: string) => {
+  try {
+    const response = await apiInstance.post('channels', {
+      channelInfo: { name: name, id_youtube: channelIdYoutube },
+    });
+    log.info('Add channel response: ', response);
+  } catch (error) {
+    log.error('Adding channel error: ', error);
   }
 };

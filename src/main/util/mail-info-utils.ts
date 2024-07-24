@@ -7,7 +7,6 @@ export const updateMailInfo = async (mailInfo: MailInfo) => {
     const response = await apiInstance.put('mails', {
       id: mailInfo.id,
       status: mailInfo.status,
-      video_links: mailInfo.video_links,
     });
 
     return response.data;

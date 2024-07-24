@@ -7,4 +7,5 @@ export interface UploadVideoArgs {
   multipleUpload?: boolean;
   listVideoId?: string[];
   listMail?: MailInfo[];
+  idServerChannel?: number;
 }

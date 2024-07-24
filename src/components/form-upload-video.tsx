@@ -88,15 +88,16 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
       listVideoId: listSelectedVideo.map((video) => video.id),
       multipleUpload: multipleUpload,
       listMail: listMail,
+      idServerChannel: channelInfoMap?.[selectedKeyChannel].idServer || 0,
     };
 
     window.electron.ipcRenderer.sendMessage('upload-video', args);
   };
 
   useEffect(() => {
-    window.electron.ipcRenderer.sendMessage('get-info-channel');
+    window.electron.ipcRenderer.sendMessage('get-channel');
 
-    window.electron.ipcRenderer.once('get-info-channel', (res) => {
+    window.electron.ipcRenderer.once('get-channel', (res) => {
       const listChannelInfo = res as ChannelInfo[];
       const channelInfoMap: Record<string, ChannelInfo> = {};
 
@@ -115,7 +116,7 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
   };
 
   useEffect(() => {
-    if (channelInfoMap != null) {
+    if (channelInfoMap != null && channelInfoMap[selectedKeyChannel] != null) {
       getListVideoByChannel(channelInfoMap[selectedKeyChannel].name);
     }
   }, [selectedKeyChannel, channelInfoMap]);
@@ -199,7 +200,7 @@ export const FormUploadVideo: React.FC<FormUploadVideo> = ({
                     }
                     options={listChannelInfo.map((channel) => {
                       return {
-                        label: channel.name,
+                        label: channel?.name,
                         value: channel.id,
                       } as DefaultOptionType;
                     })}

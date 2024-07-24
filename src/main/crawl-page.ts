@@ -11,7 +11,11 @@ import { sleep } from './util';
 import fs from 'fs';
 import { baseUrl } from './manage-page';
 import { currentSettingsGlobal } from './settings';
-import { downloadImage, getVideosFromChannel } from './util/crawl-page-util';
+import {
+  addChannel,
+  downloadImage,
+  getVideosFromChannel,
+} from './util/crawl-page-util';
 
 const downloadAllVideosFromChannel = async (
   event: IpcMainEvent,
@@ -58,6 +62,8 @@ const downloadAllVideosFromChannel = async (
     fs.writeFileSync(idChannelPath, channelId);
     await downloadImage(channelInfo.avatar, avtPath);
     await downloadImage(channelInfo.banner, bannerPath);
+
+    await addChannel(channelInfo.name, channelId);
 
     event.reply('crawl-channel-info', {
       channelName: channelInfo.name,

@@ -12,6 +12,7 @@ export interface Video {
 
 export interface ChannelInfo {
   id: string;
+  idServer: number;
   name: string;
   avatar: string;
   banner: string;
