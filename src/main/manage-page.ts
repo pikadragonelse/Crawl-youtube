@@ -10,46 +10,6 @@ import log from 'electron-log';
 
 export const baseUrl = 'http://localhost:3001/channels';
 
-// Hàm lấy thông tin của một kênh
-const getChannelInfo = (channelName: string): ChannelInfo | null => {
-  try {
-    const { folderPath } = currentSettingsGlobal;
-    const channelsPath = path.join(
-      folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
-      'channels',
-    );
-    const channelPath = path.join(channelsPath, channelName);
-    const channelInfoPath = path.join(channelPath, 'channel-info');
-
-    const avtPath = `${baseUrl}/${channelName}/channel-info/${channelName}-avt.jpg`;
-    const bannerPath = `${baseUrl}/${channelName}/channel-info/${channelName}-banner.jpg`;
-    const channelId = fs.readFileSync(
-      path.join(channelInfoPath, `${channelName}-id.txt`),
-      'utf8',
-    );
-
-    if (!fs.existsSync(path.join(channelInfoPath, `${channelName}-avt.jpg`))) {
-      log.error(`Không tìm thấy AVT hoặc Banner cho kênh ${channelName}`);
-      return null;
-    }
-
-    return {
-      id: channelId,
-      name: channelName,
-      avatar: avtPath,
-      banner: bannerPath,
-    };
-  } catch (error) {
-    log.error(error);
-    return {
-      id: '',
-      name: '',
-      avatar: '',
-      banner: '',
-    };
-  }
-};
-
 export const getVideoOfChannel = (channelName: string): VideoInfo[] | null => {
   const { folderPath } = currentSettingsGlobal;
   const channelsPath = path.join(
@@ -95,23 +55,6 @@ export const getVideoOfChannel = (channelName: string): VideoInfo[] | null => {
 
   return videos;
 };
-
-ipcMain.on('get-info-channel', (event, args) => {
-  const { folderPath } = currentSettingsGlobal;
-  const channelsPath = path.join(
-    folderPath !== '' && folderPath != null ? folderPath : path.resolve(),
-    'channels',
-  );
-  if (!fs.existsSync(channelsPath)) {
-    fs.mkdirSync(channelsPath);
-  }
-  const channels = fs.readdirSync(channelsPath);
-  const channelsInfo = channels
-    .map((channelName) => getChannelInfo(channelName))
-    .filter((channel) => channel !== null) as ChannelInfo[];
-
-  event.reply('get-info-channel', channelsInfo);
-});
 
 ipcMain.on('get-video-channel', (event, channelName) => {
   const listVideo = getVideoOfChannel(channelName);

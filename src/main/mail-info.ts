@@ -23,7 +23,6 @@ ipcMain.on('get-list-mail', async (event, args) => {
         password: mail.password,
         recoverMail: mail.recover_mail,
         status: mail.status,
-        video_links: mail.video_links,
       };
     });
 
@@ -44,7 +43,6 @@ ipcMain.on('add-multiple-mail', async (event, listMailInfo: MailInfo[]) => {
       address: mail.mail,
       password: mail.password,
       recover_mail: mail.recoverMail,
-      video_links: [],
     };
   });
 

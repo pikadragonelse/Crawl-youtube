@@ -22,6 +22,8 @@ import fs from 'fs';
 import { updateMailInfo } from './util/mail-info-utils';
 import { getNextPosition } from '../utils/window-position';
 import { generateString } from '../utils/generate-string';
+import { addLinkVideo } from './util/video-link-util';
+import { VideoLink } from '../models/video-link';
 
 const APP_DATA_PATH = execSync('echo %APPDATA%').toString().trim();
 // puppeteer.use(StealthPlugin());
@@ -116,6 +118,7 @@ const runProcessUpload = async (
   mail: MailInfo,
   type: 'byId' | 'full' = 'full',
   listVideoId: string[] = [],
+  idServerChannel: number = 0,
 ) => {
   log.info('Profile info: ', profile);
 
@@ -215,7 +218,7 @@ const runProcessUpload = async (
         return;
       }
       const listVideo = getListVideoByListId(listVideoId, channelName);
-      const listLinkVideo: string[] = [];
+      const listLinkVideo: VideoLink[] = [];
       if (listVideo != null) {
         for (let index = 0; index < listVideo.length; index++) {
           if (index === listVideo?.length) {
@@ -232,21 +235,27 @@ const runProcessUpload = async (
             event.reply('reload-list-mail');
             return;
           } else if (message === 'unclickable') {
-            await browser.close();
-            mail.status = 'errorUploading';
-            updateMailInfo(mail);
-            event.reply('reload-list-mail');
-            return;
+            // await browser.close();
+            // mail.status = 'errorUploading';
+            // updateMailInfo(mail);
+            // event.reply('reload-list-mail');
           } else if (message != null && message !== '') {
             log.info(`Video ${video.title} đã được tải lên thành công`);
-            listLinkVideo.push(message);
+            const videoLink: VideoLink = {
+              id_channel: idServerChannel,
+              id_mail: mail.id || 0,
+              title: video.title,
+              link: message,
+            };
+            listLinkVideo.push(videoLink);
           }
           await sleep(5000);
         }
       }
       await browser.close();
       mail.status = 'uploaded';
-      mail.video_links = listLinkVideo;
+
+      await addLinkVideo(listLinkVideo);
       updateMailInfo(mail);
       event.reply('reload-list-mail');
     } catch (error) {
@@ -256,8 +265,15 @@ const runProcessUpload = async (
 };
 
 ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
-  const { mail, channelName, type, listVideoId, multipleUpload, listMail } =
-    args;
+  const {
+    mail,
+    channelName,
+    type,
+    listVideoId,
+    multipleUpload,
+    listMail,
+    idServerChannel,
+  } = args;
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width, height } = primaryDisplay.size;
   let [x, y] = [0, 0];
@@ -299,6 +315,7 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
             mail,
             type,
             listVideoId,
+            idServerChannel,
           );
         } else {
           await runProcessUpload(
@@ -330,6 +347,7 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
               mail,
               type,
               listVideoId,
+              idServerChannel,
             );
           } else {
             await runProcessUpload(
@@ -379,6 +397,7 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
                   mail,
                   type,
                   listVideoId,
+                  idServerChannel,
                 );
               } else {
                 await runProcessUpload(
@@ -408,6 +427,7 @@ ipcMain.on('upload-video', async (event, args: UploadVideoArgs) => {
                     mail,
                     type,
                     listVideoId,
+                    idServerChannel,
                   );
                 } else {
                   await runProcessUpload(

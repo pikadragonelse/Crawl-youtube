@@ -23,6 +23,7 @@ import './settings';
 import './upload-video';
 import './mail-info';
 import './open-browser';
+import './channel';
 
 let mainWindow: BrowserWindow | null = null;
 export let mainWindowId = 0;
